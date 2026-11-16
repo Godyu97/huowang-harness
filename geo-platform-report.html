@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GeoPro（智脉 GEO）项目全景报告 v2.0</title>
+<style>
+  :root {
+    --bg: #f5f7fb;
+    --panel: #ffffff;
+    --panel-2: #f0f3f9;
+    --text: #1b2333;
+    --muted: #5d6b82;
+    --line: #e2e7f0;
+    --brand: #3b5bfd;
+    --brand-2: #7a4dff;
+    --brand-soft: #eaeefe;
+    --ok: #12a26b;
+    --ok-soft: #e3f6ee;
+    --warn: #d98a00;
+    --warn-soft: #fdf3dd;
+    --bad: #d93b4b;
+    --bad-soft: #fde8ea;
+    --shadow: 0 1px 2px rgba(20, 30, 60, .05), 0 6px 20px rgba(20, 30, 60, .06);
+    --radius: 14px;
+    --side-w: 248px;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  [data-theme="dark"] {
+    --bg: #0f1420;
+    --panel: #171d2b;
+    --panel-2: #1e2536;
+    --text: #e6eaf2;
+    --muted: #9aa6bd;
+    --line: #2a3247;
+    --brand: #7b93ff;
+    --brand-2: #a98bff;
+    --brand-soft: #232c4a;
+    --ok-soft: #133328;
+    --warn-soft: #3a2e12;
+    --bad-soft: #3d1c22;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 6px 20px rgba(0, 0, 0, .25);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    font-size: 14.5px;
+  }
+  a { color: var(--brand); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code { font-family: var(--mono); font-size: .88em; background: var(--panel-2); padding: 1px 6px; border-radius: 5px; }
+
+  /* ---------- 布局 ---------- */
+  .sidebar {
+    position: fixed; inset: 0 auto 0 0; width: var(--side-w);
+    background: var(--panel); border-right: 1px solid var(--line);
+    display: flex; flex-direction: column; z-index: 20;
+  }
+  .logo { padding: 22px 20px 16px; border-bottom: 1px solid var(--line); }
+  .logo .mark {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px; border-radius: 10px; color: #fff; font-weight: 700;
+    background: linear-gradient(135deg, var(--brand), var(--brand-2)); margin-right: 10px; vertical-align: middle;
+  }
+  .logo b { font-size: 16px; vertical-align: middle; }
+  .logo small { display: block; color: var(--muted); margin-top: 8px; font-size: 12px; }
+  .nav { flex: 1; overflow-y: auto; padding: 12px 10px; }
+  .nav a {
+    display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 9px;
+    color: var(--muted); font-weight: 500; margin-bottom: 2px;
+  }
+  .nav a:hover { background: var(--panel-2); text-decoration: none; color: var(--text); }
+  .nav a.active { background: var(--brand-soft); color: var(--brand); }
+  .nav .num { font-family: var(--mono); font-size: 11px; opacity: .7; width: 18px; }
+  .side-foot { padding: 14px 16px; border-top: 1px solid var(--line); display: flex; gap: 8px; }
+  .btn {
+    border: 1px solid var(--line); background: var(--panel); color: var(--text);
+    border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 13px; font-family: inherit;
+  }
+  .btn:hover { border-color: var(--brand); color: var(--brand); }
+  .btn.primary { background: var(--brand); border-color: var(--brand); color: #fff; }
+
+  main { margin-left: var(--side-w); padding: 28px 40px 80px; max-width: calc(1280px + var(--side-w)); }
+  section { scroll-margin-top: 20px; margin-bottom: 44px; }
+  .sec-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 14px; }
+  .sec-head .tag { font-family: var(--mono); color: var(--brand); font-size: 13px; font-weight: 600; }
+  h2 { font-size: 22px; margin: 0; }
+  h3 { font-size: 16px; margin: 0 0 10px; }
+  .lead { color: var(--muted); margin: 0 0 18px; max-width: 900px; }
+
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px 22px; }
+  .grid { display: grid; gap: 16px; }
+  .g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .g4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .mt { margin-top: 16px; }
+  .g-eco { grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); }
+  .g-arch { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    border-radius: 18px; padding: 34px 36px; color: #fff; position: relative; overflow: hidden;
+    background: linear-gradient(120deg, #2f49e0 0%, #6a3fe8 60%, #9b4de6 100%);
+    box-shadow: 0 10px 30px rgba(59, 91, 253, .25);
+  }
+  .hero::after {
+    content: ""; position: absolute; right: -80px; top: -80px; width: 320px; height: 320px;
+    border-radius: 50%; background: rgba(255, 255, 255, .08);
+  }
+  .hero .eyebrow { font-size: 12.5px; letter-spacing: .08em; opacity: .85; }
+  .hero h1 { font-size: 28px; margin: 8px 0 10px; line-height: 1.35; }
+  .hero p { margin: 0; max-width: 820px; opacity: .92; }
+  .hero .chips { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 8px; position: relative; z-index: 1; }
+  .hero .chip { background: rgba(255, 255, 255, .16); border: 1px solid rgba(255, 255, 255, .25); padding: 4px 12px; border-radius: 99px; font-size: 12.5px; }
+
+  .kpi { padding: 18px 20px; }
+  .kpi .label { color: var(--muted); font-size: 12.5px; }
+  .kpi .value { font-size: 26px; font-weight: 700; margin: 4px 0 2px; letter-spacing: -.01em; }
+  .kpi .hint { color: var(--muted); font-size: 12px; }
+
+  /* ---------- 表格 ---------- */
+  .tbl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: var(--panel-2); color: var(--muted); font-weight: 600; white-space: nowrap; font-size: 12.5px; }
+  tr:last-child td { border-bottom: none; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tr.total td { font-weight: 700; background: var(--brand-soft); }
+
+  .pill { display: inline-block; padding: 1px 9px; border-radius: 99px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .pill.ok { background: var(--ok-soft); color: var(--ok); }
+  .pill.warn { background: var(--warn-soft); color: var(--warn); }
+  .pill.bad { background: var(--bad-soft); color: var(--bad); }
+  .pill.info { background: var(--brand-soft); color: var(--brand); }
+
+  .note {
+    border-left: 3px solid var(--warn); background: var(--warn-soft); padding: 10px 14px; border-radius: 0 10px 10px 0;
+    font-size: 13px; margin-top: 14px;
+  }
+  .note.info { border-color: var(--brand); background: var(--brand-soft); }
+
+  ul.clean { margin: 0; padding-left: 18px; }
+  ul.clean li { margin: 4px 0; }
+
+  /* ---------- 闭环流程 ---------- */
+  .flow { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+  .flow .step {
+    position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 14px 12px;
+    box-shadow: var(--shadow);
+  }
+  .flow .step .n {
+    width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 13px;
+    background: linear-gradient(135deg, var(--brand), var(--brand-2)); margin-bottom: 8px;
+  }
+  .flow .step b { display: block; font-size: 14px; margin-bottom: 4px; }
+  .flow .step span { color: var(--muted); font-size: 12.5px; }
+  .flow .step:not(:last-child)::after {
+    content: "›"; position: absolute; right: -10px; top: 50%; transform: translateY(-50%);
+    color: var(--brand); font-size: 20px; font-weight: 700; z-index: 2;
+  }
+
+  /* 四层漏斗 */
+  .funnel { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+  .funnel .layer {
+    color: #fff; border-radius: 10px; padding: 12px 18px; display: flex; gap: 14px; align-items: center;
+  }
+  .funnel .layer .lv { font-family: var(--mono); font-weight: 700; background: rgba(255, 255, 255, .2); padding: 2px 8px; border-radius: 6px; }
+  .funnel .layer small { opacity: .9; }
+
+  /* ---------- 审查 ---------- */
+  .review-item { display: grid; grid-template-columns: 46px 1fr 1fr; gap: 14px; padding: 14px 0; border-bottom: 1px dashed var(--line); }
+  .review-item:last-child { border-bottom: none; }
+  .review-item .pid { font-family: var(--mono); font-weight: 700; color: var(--bad); }
+  .review-item .prob b, .review-item .fix b { display: block; margin-bottom: 4px; }
+  .review-item .prob { color: var(--text); }
+  .review-item .prob span, .review-item .fix span { color: var(--muted); font-size: 13px; }
+  .review-item .fix { border-left: 3px solid var(--ok); padding-left: 12px; }
+
+  /* ---------- 热力矩阵 ---------- */
+  .heat td.h { text-align: center; font-weight: 700; cursor: default; width: 9%; }
+  .heat .h0 { color: var(--muted); }
+  .heat .h1 { background: rgba(59, 91, 253, .10); color: var(--brand); }
+  .heat .h2 { background: rgba(59, 91, 253, .28); color: var(--brand); }
+  .heat .h3 { background: linear-gradient(135deg, var(--brand), var(--brand-2)); color: #fff; }
+  .heat tr.eng { cursor: pointer; }
+  .heat tr.eng:hover td { filter: brightness(.97); }
+  .heat tr.eng.sel td:first-child { box-shadow: inset 3px 0 0 var(--brand); }
+  .legend { display: flex; gap: 14px; align-items: center; font-size: 12.5px; color: var(--muted); margin-top: 10px; flex-wrap: wrap; }
+  .legend i { display: inline-block; width: 14px; height: 14px; border-radius: 4px; vertical-align: -2px; margin-right: 4px; }
+
+  .engine-detail h3 { display: flex; align-items: center; gap: 10px; }
+  .kv { display: grid; grid-template-columns: 92px 1fr; gap: 8px 12px; font-size: 13.5px; }
+  .kv dt { color: var(--muted); }
+  .kv dd { margin: 0; }
+
+  /* ---------- 标签页 ---------- */
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .tab {
+    border: 1px solid var(--line); background: var(--panel); border-radius: 9px; padding: 7px 14px; cursor: pointer;
+    font-family: inherit; font-size: 13.5px; color: var(--muted);
+  }
+  .tab.active { border-color: var(--brand); background: var(--brand-soft); color: var(--brand); font-weight: 600; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  .route { font-family: var(--mono); font-size: 12.5px; color: var(--brand); }
+
+  .rule { display: flex; gap: 12px; }
+  .rule .ri {
+    flex: none; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center;
+    background: var(--brand-soft); color: var(--brand); font-weight: 700;
+  }
+  .rule b { display: block; margin-bottom: 2px; }
+  .rule span { color: var(--muted); font-size: 13px; }
+
+  /* ---------- 架构图 ---------- */
+  .arch { display: flex; flex-direction: column; gap: 10px; }
+  .arch .tier { border: 1px dashed var(--line); border-radius: 12px; padding: 12px 14px; background: var(--panel-2); }
+  .arch .tier > .tn { font-size: 12px; color: var(--muted); font-weight: 600; margin-bottom: 8px; letter-spacing: .04em; }
+  .arch .boxes { display: flex; gap: 10px; flex-wrap: wrap; }
+  .arch .box {
+    flex: 1 1 160px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 13px;
+  }
+  .arch .box b { display: block; font-size: 13.5px; }
+  .arch .box small { color: var(--muted); }
+  .arch .box.hl { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); }
+  .arch .arrow { text-align: center; color: var(--muted); font-size: 12px; }
+
+  pre.tree {
+    margin: 0; font-family: var(--mono); font-size: 12.3px; line-height: 1.6; background: var(--panel-2);
+    border-radius: 10px; padding: 14px 16px; overflow-x: auto; color: var(--text);
+  }
+  pre.tree .c { color: var(--muted); }
+
+  .sm { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 6px 0 12px; }
+  .sm .st { font-family: var(--mono); font-size: 12px; padding: 3px 9px; border-radius: 7px; background: var(--panel-2); border: 1px solid var(--line); }
+  .sm .st.g { background: var(--ok-soft); color: var(--ok); border-color: transparent; }
+  .sm .st.r { background: var(--bad-soft); color: var(--bad); border-color: transparent; }
+  .sm .st.y { background: var(--warn-soft); color: var(--warn); border-color: transparent; }
+  .sm .ar { color: var(--muted); }
+
+  /* ---------- 甘特 ---------- */
+  .gantt { position: relative; }
+  .gantt .hdr, .gantt .row { display: grid; grid-template-columns: 230px 1fr; align-items: center; }
+  .gantt .hdr .weeks { display: grid; grid-template-columns: repeat(12, 1fr); font-size: 11.5px; color: var(--muted); text-align: center; }
+  .gantt .hdr .weeks span { border-left: 1px solid var(--line); padding: 4px 0; }
+  .gantt .grp { font-size: 12px; font-weight: 700; color: var(--brand); padding: 12px 0 4px; }
+  .gantt .row { min-height: 32px; }
+  .gantt .row .lbl { font-size: 12.8px; padding-right: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gantt .track {
+    position: relative; height: 26px;
+    background-image: repeating-linear-gradient(90deg, var(--line) 0 1px, transparent 1px calc(100% / 12));
+  }
+  .gantt .bar {
+    position: absolute; top: 4px; height: 18px; border-radius: 6px; color: #fff; font-size: 11px; line-height: 18px;
+    padding: 0 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .gantt .bar.dev { background: linear-gradient(90deg, var(--brand), var(--brand-2)); }
+  .gantt .bar.ops { background: linear-gradient(90deg, #12a26b, #1fbf8f); }
+  .gantt .bar.obs { background: repeating-linear-gradient(45deg, #d98a00, #d98a00 6px, #e9a530 6px, #e9a530 12px); }
+  .gantt .gate {
+    position: absolute; top: 0; bottom: 0; width: 0; border-left: 2px dashed var(--bad); pointer-events: none;
+  }
+  .gantt .gate span {
+    position: absolute; top: -2px; left: 3px; font-size: 10.5px; color: var(--bad); font-weight: 700; font-family: var(--mono);
+  }
+
+  /* ---------- Epic 条形图 ---------- */
+  .epic { display: grid; grid-template-columns: 210px 1fr 70px; gap: 10px; align-items: center; margin: 7px 0; font-size: 13px; }
+  .epic .eb { height: 16px; border-radius: 5px; background: var(--panel-2); position: relative; overflow: hidden; display: flex; }
+  .epic .eb .fe { background: var(--brand); }
+  .epic .eb .be { background: var(--brand-2); }
+  .epic .eb .bf { background: repeating-linear-gradient(45deg, var(--warn), var(--warn) 5px, #e9a530 5px, #e9a530 10px); }
+  .epic .v { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+
+  /* ---------- ROI 测算器 ---------- */
+  .calc { display: grid; grid-template-columns: 1.05fr 1fr; gap: 18px; }
+  .field { margin-bottom: 14px; }
+  .field label { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+  .field label output { color: var(--text); font-weight: 700; font-variant-numeric: tabular-nums; }
+  input[type="range"] { width: 100%; accent-color: var(--brand); }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
+  .seg button { border: none; background: var(--panel); color: var(--muted); padding: 6px 12px; cursor: pointer; font-family: inherit; font-size: 13px; }
+  .seg button.on { background: var(--brand); color: #fff; }
+  .res-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+  .res-row:last-child { border-bottom: none; }
+  .res-row b { font-variant-numeric: tabular-nums; }
+  .big-res { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+  .big-res .kpi { background: var(--panel-2); border-radius: 12px; }
+  .marginbar { height: 10px; border-radius: 99px; background: var(--panel-2); overflow: hidden; margin-top: 6px; }
+  .marginbar i { display: block; height: 100%; background: linear-gradient(90deg, var(--ok), #1fbf8f); transition: width .25s; }
+
+  .docs-grid a.card { display: block; color: var(--text); transition: transform .15s, border-color .15s; }
+  .docs-grid a.card:hover { text-decoration: none; transform: translateY(-2px); border-color: var(--brand); }
+  .docs-grid .dn { font-family: var(--mono); color: var(--brand); font-weight: 700; font-size: 13px; }
+  .docs-grid p { color: var(--muted); font-size: 13px; margin: 6px 0 8px; }
+
+  footer { color: var(--muted); font-size: 12.5px; border-top: 1px solid var(--line); padding-top: 18px; }
+
+  @media (max-width: 1100px) {
+    .g4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .g3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .flow { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .flow .step::after { display: none; }
+    .calc { grid-template-columns: 1fr; }
+    .g-eco, .g-arch { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 820px) {
+    .sidebar { display: none; }
+    main { margin-left: 0; padding: 18px; }
+    .g2, .g3, .g4 { grid-template-columns: minmax(0, 1fr); }
+    .flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .big-res { grid-template-columns: 1fr; }
+    .hero { padding: 24px 22px; }
+    .hero h1 { font-size: 22px; }
+    .review-item { grid-template-columns: 1fr; }
+    .gantt .hdr, .gantt .row { grid-template-columns: 130px 1fr; }
+    .epic { grid-template-columns: 120px 1fr 60px; }
+  }
+  @media print {
+    .sidebar, .side-foot, .no-print { display: none !important; }
+    main { margin: 0; padding: 0; max-width: none; }
+    body { background: #fff; font-size: 12px; }
+    .card, .tbl-wrap { box-shadow: none; break-inside: avoid; }
+    section { break-inside: avoid-page; }
+    .tab-panel { display: block !important; margin-bottom: 12px; }
+    .tabs { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="logo">
+    <span class="mark">G</span><b>GeoPro 智脉 GEO</b>
+    <small>项目全景报告 v2.0 · 2026-11-16</small>
+  </div>
+  <nav class="nav" id="nav">
+    <a href="#overview"><span class="num">01</span>项目总览</a>
+    <a href="#review"><span class="num">02</span>原方案审查</a>
+    <a href="#ecosystem"><span class="num">03</span>大陆 AI 生态</a>
+    <a href="#prd"><span class="num">04</span>产品需求 PRD</a>
+    <a href="#feasibility"><span class="num">05</span>可行性调研</a>
+    <a href="#spec"><span class="num">06</span>开发 Spec</a>
+    <a href="#roadmap"><span class="num">07</span>排期与门禁</a>
+    <a href="#resources"><span class="num">08</span>资源与预算</a>
+    <a href="#risks"><span class="num">09</span>风险预案</a>
+    <a href="#docs"><span class="num">10</span>文档导航</a>
+  </nav>
+  <div class="side-foot">
+    <button class="btn" id="themeBtn" type="button">深色模式</button>
+    <button class="btn" type="button" onclick="window.print()">打印 / PDF</button>
+  </div>
+</aside>
+
+<main>
+
+<!-- ============ 01 总览 ============ -->
+<section id="overview">
+  <div class="hero">
+    <div class="eyebrow">PROJECT CHARTER · 中国大陆 GEO 监测优化一体化平台</div>
+    <h1>让品牌的真实优势，在客户向 AI 提问的关键时刻<br />被准确理解、可信引用并有效承接</h1>
+    <p>面向中国大陆品牌企业与代运营机构（Agency）的白帽 GEO（生成式引擎优化）SaaS：从“监测看板”升级为
+      <b>双轨采样 → 思考链诊断 → 事实库驱动内容工程 → 1+3 渠道分发 → 四层复测归因</b> 的完整经营闭环。</p>
+    <div class="chips">
+      <span class="chip">DeepSeek</span><span class="chip">字节豆包</span><span class="chip">腾讯元宝</span>
+      <span class="chip">Kimi</span><span class="chip">百度 AI 搜索 / 文心</span><span class="chip">通义千问 / 夸克</span>
+    </div>
+  </div>
+
+  <div class="grid g4 mt">
+    <div class="card kpi"><div class="label">MVP 周期</div><div class="value">10 周</div><div class="hint">W1 验证 · W2–7 研发上线 · W8–10 复测验收</div></div>
+    <div class="card kpi"><div class="label">研发工作量</div><div class="value">112 人日</div><div class="hint">93 人日开发 + 19 人日（20%）缓冲</div></div>
+    <div class="card kpi"><div class="label">推荐团队编制</div><div class="value">4.5 FTE</div><div class="hint">精简版 2.5–3 FTE，需同步裁剪范围</div></div>
+    <div class="card kpi"><div class="label">10 周外部现金投入</div><div class="value">≈ ¥1.66 万</div><div class="hint">云资源 + 模型 API + 合规杂项，不含薪资</div></div>
+  </div>
+
+  <div class="grid g2 mt">
+    <div class="card">
+      <h3>项目基本信息</h3>
+      <dl class="kv">
+        <dt>目标客群</dt><dd>高客单 B2B（企服 SaaS、工业设备、数字化方案）· 高对比消费品牌（3C、家电、母婴、连锁加盟）· SEO/内容营销/公关 Agency</dd>
+        <dt>核心痛点</dt><dd>AI 不提及、优势说不清、参数过时报错、竞品垄断推荐、优化无抓手、效果难归因</dd>
+        <dt>市场依据</dt><dd>CNNIC《生成式人工智能应用发展报告（2026）》：截至 2026 年上半年用户超 7 亿，76.0% 用户会用生成式 AI 回答问题</dd>
+        <dt>商业模式</dt><dd>SaaS 订阅（品牌数 + 采样配额）+ 增值交付服务包，软件毛利与人工服务独立核算</dd>
+        <dt>技术路线</dt><dd><code>Next.js 16</code> + <code>TS Worker</code> + <code>PostgreSQL 17 RLS</code> + <code>Drizzle</code> + <code>Better Auth</code> + <code>pg-boss</code> + Chrome MV3 采集助手</dd>
+        <dt>首期目标</dt><dd>跑通 1 个垂直行业、3–5 家种子客户的付费闭环</dd>
+      </dl>
+    </div>
+    <div class="card">
+      <h3>四层可验收价值漏斗</h3>
+      <p class="lead" style="margin-bottom:12px;font-size:13px">拒绝单一“AI 排名分”，交付成果拆成四个可独立核验的层级。</p>
+      <div class="funnel">
+        <div class="layer" style="width:100%;background:#3b5bfd"><span class="lv">L1</span><div><b>交付执行层</b> <small>· 官网修复、事实库、内容真实公开上线（URL + Hash 签收）</small></div></div>
+        <div class="layer" style="width:92%;background:#5a4ff6"><span class="lv">L2</span><div><b>引擎采纳层</b> <small>· 进入原生引用 / 思考链，事实错误率下降</small></div></div>
+        <div class="layer" style="width:84%;background:#7a4dff"><span class="lv">L3</span><div><b>购买推荐层</b> <small>· 30 道非品牌题推荐率与 SoV 提升</small></div></div>
+        <div class="layer" style="width:76%;background:#9b4de6"><span class="lv">L4</span><div><b>业务转化层</b> <small>· 可观察的 AI 关联有效线索</small></div></div>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="mt" style="margin-top:22px">业务闭环六步法</h3>
+  <div class="flow">
+    <div class="step"><div class="n">1</div><b>目标与建档</b><span>客户成功计划 CSP、品牌事实库、40 道核心题冻结</span></div>
+    <div class="step"><div class="n">2</div><b>双轨采样监测</b><span>L1 官方联网 API 日采 + L2 浏览器助手 C 端核验</span></div>
+    <div class="step"><div class="n">3</div><b>思考链与信源诊断</b><span>CoT 淘汰归因、官网可读性、竞品信源差距</span></div>
+    <div class="step"><div class="n">4</div><b>AI 友好内容工程</b><span>确认简报 → 绑定事实生成 → 六维 Linter → 审批</span></div>
+    <div class="step"><div class="n">5</div><b>1+3 渠道分发</b><span>官网 SSR 事实页 + 公众号 / 知乎 / 百家号·头条</span></div>
+    <div class="step"><div class="n">6</div><b>四层复测复盘</b><span>D+7 / 14 / 28 同口径对比、线索台账、策略迭代</span></div>
+  </div>
+</section>
+
+<!-- ============ 02 审查 ============ -->
+<section id="review">
+  <div class="sec-head"><span class="tag">02</span><h2>原 geo-prd 方案审查</h2></div>
+  <p class="lead">对仓库原有 17 份文档交叉审计后的结论：原方案在数据真实性、合规意识、证据可追溯性上水准很高，问题集中在
+    <b>文档补丁未合并</b>和<b>对中国大陆信源生态落地不足</b>两方面。</p>
+
+  <div class="grid g2">
+    <div class="card">
+      <h3><span class="pill ok">保留</span>&nbsp; 5 项核心资产</h3>
+      <ul class="clean">
+        <li><b>三类证据严格隔离</b>：搜索候选、API 模型回答、真实消费者端观察分别存储，不混算“全网 AI 综合排名”。</li>
+        <li><b>指标分母透明可复算</b>：区分计划槽位 P、有效回答 V、条件合格 E、可判断样本 J、可观察引用 C；采集失败标 N/A 而非 0%。</li>
+        <li><b>品牌事实库防幻觉</b>：监测请求不夹带客户事实；内容强制绑定已审批 <code>fact_id</code> 与有效期，过期自动阻断待发稿。</li>
+        <li><b>合规底线清晰</b>：不收明文密码、不做共享 Cookie 池群发、不伪造测评，遵循《人工智能生成合成内容标识办法》。</li>
+        <li><b>单语言全栈选型务实</b>：Next.js + TS Worker + PostgreSQL Monorepo，避免小团队维护两套领域模型。</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="pill bad">修正</span>&nbsp; 6 项关键问题（概览）</h3>
+      <div class="tbl-wrap" style="border:none">
+        <table>
+          <tr><th>编号</th><th>问题</th><th>处理方向</th></tr>
+          <tr><td>P1</td><td>多版补丁未合并，团队认知分裂</td><td>五册合一 + HTML 门户</td></tr>
+          <tr><td>P2</td><td>忽视大陆“围墙花园”信源差异</td><td>引擎—信源矩阵 + 1+3+X</td></tr>
+          <tr><td>P3</td><td>API 与真实 App 脱节，纯人工截图</td><td>L2 浏览器合规采集助手</td></tr>
+          <tr><td>P4</td><td>未利用推理模型思考链</td><td>Reasoning Trace 诊断管线</td></tr>
+          <tr><td>P5</td><td>AI 友好内容缺中文 RAG 工程细节</td><td>六大内容工程准则 + Linter</td></tr>
+          <tr><td>P6</td><td>8 周塞入约 120 人日，排期倒挂</td><td>裁剪范围，重排 10 周</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mt">
+    <h3>问题诊断与定制修正详情</h3>
+    <div class="review-item"><div class="pid">P1</div>
+      <div class="prob"><b>文档碎片化</b><span>《初稿 v1.2》《效果导向修改建议》《SEO 与 14 平台分发报告》《架构设计》各说一套页面、路由与流程，修订建议停留在纸面。</span></div>
+      <div class="fix"><b>统一为五册规范 + 单一路由</b><span>立项总览 / PRD / 可行性 / Spec / 资源排期五份正交文档；统一 6 大业务模块与 <code>/w/[workspaceId]/b/[brandId]/…</code> 路由。</span></div></div>
+    <div class="review-item"><div class="pid">P2</div>
+      <div class="prob"><b>偏海外 GEO 思路</b><span>大量篇幅放在独立站 SEO，忽略公众号、知乎、百家号、头条/抖音对不同大陆 AI 引擎的权重差异。</span></div>
+      <div class="fix"><b>1+3+X 渠道策略</b><span>1 个高响应 SSR 事实官网为锚点；首版打透公众号（元宝/Kimi）+ 知乎（DeepSeek/豆包/Kimi/夸克）+ 百家号·头条（百度 AI/豆包）。</span></div></div>
+    <div class="review-item"><div class="pid">P3</div>
+      <div class="prob"><b>C 端核验不可持续</b><span>每品牌 40 题 × 5 平台手工采一次即约 200 次复制截图操作，交付人力无法规模化。</span></div>
+      <div class="fix"><b>双轨三层采集</b><span>L1 官方联网 API 自动高频监测 + L2 Chrome 采集助手（在运营本人浏览器中半自动填词、一键提取回答 / 思考链 / 引用卡片）；提效倍数在 S0 实测确认。</span></div></div>
+    <div class="review-item"><div class="pid">P4</div>
+      <div class="prob"><b>丢失淘汰原因</b><span>DeepSeek、豆包、元宝的深度思考模式会暴露推理过程，原数据模型只存最终回答。</span></div>
+      <div class="fix"><b>思考链诊断</b><span>结构化抽取采纳依据、淘汰原因（缺参数 / 资料过旧 / 疑似软文 / 价格不透明 / 竞品证据更强）与检索错失，直接转化为内容简报。</span></div></div>
+    <div class="review-item"><div class="pid">P5</div>
+      <div class="prob"><b>内容规范停留在框架</b><span>仅有“回答-条件-证据-限制”框架，缺少中文切片、抓取超时、反营销过滤等工程约束。</span></div>
+      <div class="fix"><b>六大 AI 友好准则</b><span>首屏直答、切片自包含、结构化表格、诚实边界、信任锚点与时间戳、AIGC 标识与事实锁，内置为编辑器 Linter。</span></div></div>
+    <div class="review-item"><div class="pid">P6</div>
+      <div class="prob"><b>范围与工期倒挂</b><span>14 平台模板进 P0（+20–30 人日），叠加多租户 RLS、队列、日志解析，2 名开发 8 周无法完成。</span></div>
+      <div class="fix"><b>10 周 MVP + 双编制</b><span>首版砍掉非核心 10 个平台模板与重型日志连接器；标准版 4.5 FTE / 精简版 2.5 FTE，预留 20% 缓冲。</span></div></div>
+  </div>
+</section>
+
+<!-- ============ 03 生态 ============ -->
+<section id="ecosystem">
+  <div class="sec-head"><span class="tag">03</span><h2>中国大陆 AI 搜索生态：引擎 × 信源亲和矩阵</h2></div>
+  <p class="lead">大陆各 AI 入口依托各自母公司生态与合作索引，信源偏好差异明显。点击引擎行查看检索特征、内容偏好与监测接入方式。</p>
+
+  <div class="grid g-eco">
+    <div>
+      <div class="tbl-wrap">
+        <table class="heat" id="heat"></table>
+      </div>
+      <div class="legend">
+        <span><i style="background:linear-gradient(135deg,var(--brand),var(--brand-2))"></i>高权重（优先投放）</span>
+        <span><i style="background:rgba(59,91,253,.28)"></i>中</span>
+        <span><i style="background:rgba(59,91,253,.10)"></i>低</span>
+        <span>· 不作为首选</span>
+      </div>
+    </div>
+    <div class="card engine-detail" id="engineDetail"></div>
+  </div>
+  <div class="note">该矩阵来自行业实践经验与公开产品形态观察，是首轮渠道投放的<b>工作假设</b>。G2 门禁后以平台实际采集的原生引用域名分布逐引擎校准，校准前不对客户承诺覆盖比例。</div>
+
+  <div class="grid g3 mt">
+    <div class="card"><h3><span class="pill info">1</span>&nbsp; 企业官网（事实锚点）</h3>
+      <p style="margin:0;color:var(--muted);font-size:13.5px">备案、大陆 CDN、首字节与正文直出 &lt; 1.5s 的 SSR/SSG 页面；参数用 HTML 表格而非长图；规范 canonical 与 JSON-LD。所有外部内容回指这里。</p></div>
+    <div class="card"><h3><span class="pill info">3</span>&nbsp; 首版核心外部信源</h3>
+      <p style="margin:0;color:var(--muted);font-size:13.5px"><b>微信公众号</b>（元宝、Kimi）· <b>知乎</b>机构号回答 / 专栏（DeepSeek、豆包、Kimi、夸克）· <b>百家号 / 今日头条</b>（百度 AI、豆包）。</p></div>
+    <div class="card"><h3><span class="pill warn">X</span>&nbsp; 按需扩展池（P1/P2）</h3>
+      <p style="margin:0;color:var(--muted);font-size:13.5px">抖音 / 快手 / B 站视频（官方 API 需企业资质与逐次授权）、小红书（仅人工发布）、搜狐 / 网易 / 企鹅 / 大鱼号、CSDN / 掘金。</p></div>
+  </div>
+</section>
+
+<!-- ============ 04 PRD ============ -->
+<section id="prd">
+  <div class="sec-head"><span class="tag">04</span><h2>产品需求 PRD</h2></div>
+  <p class="lead">三条设计原则：<b>以购买问题为中心</b>而非发稿数量；<b>先核实事实再生成内容</b>；<b>API 趋势与真实消费者端表现分账展示</b>。</p>
+
+  <div class="tabs" data-tabs="prd">
+    <button class="tab active" data-t="modules" type="button">6 大工作台模块</button>
+    <button class="tab" data-t="roles" type="button">角色与权限</button>
+    <button class="tab" data-t="questions" type="button">40+10 问题集</button>
+    <button class="tab" data-t="rules" type="button">AI 友好内容准则</button>
+    <button class="tab" data-t="metrics" type="button">metrics-v2 指标</button>
+    <button class="tab" data-t="sop" type="button">试点交付 SOP</button>
+  </div>
+
+  <div class="tab-panel active" data-p="prd:modules">
+    <div class="tbl-wrap"><table>
+      <tr><th>模块</th><th>路由</th><th>首屏解决的问题</th><th>P0 核心功能</th><th>P1/P2 演进</th></tr>
+      <tr><td><b>1. 项目总览</b></td><td class="route">/overview</td><td>目标达成了吗？本周最紧急的阻塞是什么？</td><td>CSP 目标卡、四层漏斗 KPI、待办与阻塞提醒、预算消耗进度</td><td>Agency 多品牌健康度大盘</td></tr>
+      <tr><td><b>2. 品牌底座与问题集</b></td><td class="route">/foundation</td><td>AI 应知道我的哪些准确事实？监控哪些购买问题？</td><td>品牌实体与消歧、自有域名 / 账号登记、事实库与有效期审批、问题簇与 40+10 题集版本</td><td>竞品事实档案、行业题库模板</td></tr>
+      <tr><td><b>3. 双轨监测与证据库</b></td><td class="route">/monitoring</td><td>AI 怎么回答？为什么推荐竞品？引用了谁？</td><td>采样日历与费用预估、L1 API 调度、L2 采集任务同步、回答与思考链查看器、引用归属、人工纠错</td><td>飞书 / 企微异常告警、地域节点对比</td></tr>
+      <tr><td><b>4. 诊断与内容工作台</b></td><td class="route">/studio</td><td>改哪个页面、写什么、缺什么证据？</td><td>官网可读性审计、信源缺口诊断、补证任务、内容简报确认、绑定事实生成、AI 友好度评分、版本 Diff 审批</td><td>行业策略模板、过期事实批量改稿</td></tr>
+      <tr><td><b>5. 渠道分发与维护</b></td><td class="route">/distribution</td><td>内容发到哪了？是否真实公开可见？</td><td>官网改造包、1+3 渠道素材包、公众号草稿 API 直推（候选）、URL 回填、可见性与一致性巡检</td><td>WordPress / Git CMS、视频平台官方 API</td></tr>
+      <tr><td><b>6. 实验复测与报告</b></td><td class="route">/experiments</td><td>D+7/14/28 有改善吗？带来多少有效咨询？</td><td>14 天基线快照、上线窗口自动对齐、共同题前后对比、线索台账、复盘决策表、不可变报告导出</td><td>CRM 线索回传、只读数据 API / MCP</td></tr>
+      <tr><td><b>7. 工作区设置</b></td><td class="route">/w/[id]/settings</td><td>成员权限、Agency 授权、成本与账单</td><td>成员邀请、<code>project_grant</code> 授权、通道能力矩阵、预算硬顶、成本 / 配额双账本、数据导出删除</td><td>在线支付、自动续费与发票</td></tr>
+    </table></div>
+  </div>
+
+  <div class="tab-panel" data-p="prd:roles">
+    <div class="tbl-wrap"><table>
+      <tr><th>角色</th><th>典型使用者</th><th>核心操作</th><th>权限边界</th></tr>
+      <tr><td><b>品牌管理员</b><br /><code>brand_admin</code></td><td>甲方市场总监 / 品牌负责人</td><td>确认 CSP、审批事实库与外发内容、确认发布、签收报告、录入线索反馈</td><td>仅本租户获授权品牌；事实批准 ≠ 内容发布批准</td></tr>
+      <tr><td><b>内容与增长运营</b><br /><code>content_operator</code></td><td>代运营专员 / 甲方编辑</td><td>维护资料与补证、写简报、AI 辅助创作、导出素材包、用插件采集 C 端样本、回填链接</td><td>不能自批事实、不能越权公开发布、看不到供应商密钥</td></tr>
+      <tr><td><b>GEO 数据分析师</b><br /><code>geo_analyst</code></td><td>策略分析师 / SEO&amp;GEO 专家</td><td>设计并冻结题集、配置采样计划、复核消歧与思考链归因、注册对照实验、写复盘</td><td>可新增 <code>analysis_version</code>，不能改写原始回答</td></tr>
+      <tr><td><b>代理商项目经理</b><br /><code>agency_pm</code></td><td>Agency 客户成功 / 交付主管</td><td>跨客户进度看板、配额预算、工时、月度结案报告、续费跟进</td><td>需代理商成员身份 + 甲方授予的 <code>project_grant</code>（品牌范围 + 有效期），撤销即断</td></tr>
+      <tr><td><b>平台运维</b><br /><code>platform_ops</code></td><td>SaaS 技术支持</td><td>通道健康、限流告警、死信恢复、供应商对账</td><td>默认不可读客户私密附件；排障访问需审批并留存审计日志</td></tr>
+    </table></div>
+  </div>
+
+  <div class="tab-panel" data-p="prd:questions">
+    <div class="tbl-wrap"><table>
+      <tr><th>题组</th><th class="num">数量</th><th>示例（连锁门店设备管理 SaaS）</th><th>计入范围</th></tr>
+      <tr><td><b>A1 品类发现</b>（非品牌）</td><td class="num">10</td><td>适合 50–500 家连锁餐饮门店的设备巡检报修系统有哪些？</td><td><span class="pill info">主面板</span> 推荐率 / 提及率 / SoV</td></tr>
+      <tr><td><b>A2 场景方案</b>（非品牌）</td><td class="num">10</td><td>跨省多门店冷链设备温度异常怎么自动预警和派单？</td><td><span class="pill info">主面板</span> 推荐率 / 提及率 / SoV</td></tr>
+      <tr><td><b>A3 购买约束 / 高意图</b>（非品牌）</td><td class="num">10</td><td>支持内网私有化部署、带三级审批的设备管理系统怎么选？大概多少钱？</td><td><span class="pill ok">高意图子集</span> 单独高亮，同时计入 30 题总推荐率</td></tr>
+      <tr><td><b>B 竞品直接比较</b></td><td class="num">5</td><td>[本品牌] 和 [竞品 X] 在私有化成本和硬件兼容上有什么区别？</td><td><span class="pill warn">独立报表</span> 不混入自然发现推荐率</td></tr>
+      <tr><td><b>C 品牌事实核验</b></td><td class="num">5</td><td>[本品牌] 售后网点覆盖哪些城市？标准版怎么收费？</td><td><span class="pill bad">事实错误率</span> 独立考核</td></tr>
+      <tr><td><b>D 轮换探索</b></td><td class="num">10/周</td><td>捕捉新兴长尾问法，发现高价值缺口后下一周期升格</td><td>仅用于机会挖掘，不进核心趋势线</td></tr>
+    </table></div>
+    <div class="note info">语义近似的 3–5 道题归为一个<b>购买问题簇</b>，每簇绑定 1 个唯一官网主落地页和 1 个明确业务承接动作（如“预约私有部署架构师演示”），避免内部近似页面互相稀释。</div>
+  </div>
+
+  <div class="tab-panel" data-p="prd:rules">
+    <p style="margin:0 0 12px;color:var(--muted)">Studio 强制流程：<b>确认内容简报 → 生成草稿 → 通过六维 AI 友好度校验 → 提审</b>。缺核心事实时自动转为补证任务指派给甲方接口人。</p>
+    <div class="grid g3">
+      <div class="card rule"><div class="ri">1</div><div><b>首屏直答摘要</b><span>正文前 200 字内给出针对核心购买问题的结论句与适用条件。</span></div></div>
+      <div class="card rule"><div class="ri">2</div><div><b>切片语义自包含</b><span>每个 H2/H3 段落（300–600 字）显式写出完整品牌名 + 品类词，少用“我们 / 该系统”。</span></div></div>
+      <div class="card rule"><div class="ri">3</div><div><b>结构化表格与问答</b><span>规格、版本差异、选型维度优先用 HTML 表格与 Q&amp;A 对，便于模型抽取键值。</span></div></div>
+      <div class="card rule"><div class="ri">4</div><div><b>诚实适用边界</b><span>写明适用条件与不建议选用的场景，去软文特征，提高推理模型采信度。</span></div></div>
+      <div class="card rule"><div class="ri">5</div><div><b>信任锚点与新鲜度</b><span>标注资料核验日期、数据出处、案例背景与测试条件；过滤《广告法》极限词。</span></div></div>
+      <div class="card rule"><div class="ri">6</div><div><b>AIGC 标识与事实锁</b><span>数值、价格、地域与 <code>fact_id</code> 自动比对；导出时附带合规的生成合成内容标识。</span></div></div>
+    </div>
+  </div>
+
+  <div class="tab-panel" data-p="prd:metrics">
+    <div class="tbl-wrap"><table>
+      <tr><th>层级</th><th>指标</th><th>口径</th><th>防误读护栏</th></tr>
+      <tr><td><span class="pill info">质量护栏</span></td><td><b>条件合格覆盖率</b> E/P</td><td>完整返回且确认触发联网搜索的回答数 ÷ 冻结计划槽位数</td><td>前后对比要求总体 ≥ 90% 且单题 ≥ 80%，否则只标“探索观察”</td></tr>
+      <tr><td><span class="pill ok">L2 采纳</span></td><td><b>自有信源原生引用率</b></td><td>含至少 1 条自有官网 / 自有账号原生引用的样本 ÷ 引用可观察样本 C</td><td>同时展示 C/E；共享域名（知乎、公众号）须精确匹配自有账号或 URL</td></tr>
+      <tr><td><span class="pill ok">L2 采纳</span></td><td><b>第三方正向支持率</b></td><td>引用第三方页面且正文正向支持本品牌的样本 ÷ 可判断样本</td><td>页面抓取受限记“待验证”，不计负面</td></tr>
+      <tr><td><span class="pill ok">L2 采纳</span></td><td><b>品牌事实错误率</b></td><td>经复核存在参数 / 价格 / 地域错误的回答 ÷ 已复核含本品牌回答</td><td>不允许以夸大事实换取推荐率上涨</td></tr>
+      <tr><td><span class="pill warn">L3 推荐</span></td><td><b>非品牌题推荐率</b>（核心）</td><td>30 道固定非品牌题逐题计算推荐率，再对共同题等权平均</td><td>高意图 10 题子集并列展示；负面提及不计推荐；变化用百分点（pp）</td></tr>
+      <tr><td><span class="pill warn">L3 推荐</span></td><td><b>竞品提及份额 SoV</b></td><td>本品牌确认提及样本 ÷ 固定竞品集各品牌确认提及样本之和</td><td>同一回答多次出现计 1 次；注明是题集声量份额而非市场占有率</td></tr>
+      <tr><td><span class="pill bad">L4 转化</span></td><td><b>AI 关联有效线索数</b></td><td>符合客户冻结标准且有 AI 关联证据的去重线索</td><td>按 AI Referrer / 专属落地页 / 销售登记自报三档分列，不乘系数外推</td></tr>
+    </table></div>
+  </div>
+
+  <div class="tab-panel" data-p="prd:sop">
+    <div class="grid g3">
+      <div class="card"><span class="pill info">Week 1</span><h3 style="margin-top:8px">冻结目标（CSP 签约）</h3><p style="margin:0;color:var(--muted);font-size:13px">选 1–3 个高利润场景，冻结 40 题与目标 AI 入口，明确有效线索定义与官网可改权限。</p></div>
+      <div class="card"><span class="pill info">Week 2–3</span><h3 style="margin-top:8px">基线采样与盘点</h3><p style="margin:0;color:var(--muted);font-size:13px">连续 14 天同条件基线；同步官网审计、专家访谈补证、事实库审批、首批简报。基线期内<b>不改实验目标页</b>（严重事实错误除外）。</p></div>
+      <div class="card"><span class="pill info">Week 4–5</span><h3 style="margin-top:8px">首批 1+3 内容上线</h3><p style="margin:0;color:var(--muted);font-size:13px">基线冻结后集中上线 3–5 项高密度改动（如官网场景页 + 参数 FAQ 页 + 公众号选型文 + 知乎 / 百家号解析），验证公开可见后开始计时。</p></div>
+      <div class="card"><span class="pill info">Week 6–9</span><h3 style="margin-top:8px">复测与线索对账</h3><p style="margin:0;color:var(--muted);font-size:13px">D+7 / D+14 / D+28 同条件采样，观察引用、思考链评价与推荐率；每周与销售核对线索，新顾虑反哺下一轮简报。</p></div>
+      <div class="card"><span class="pill info">到期</span><h3 style="margin-top:8px">复盘决策</h3><p style="margin:0;color:var(--muted);font-size:13px">“被引用未被推荐 → 补适用场景量化案例”；“被推荐无线索 → 优化落地页首屏入口与表单摩擦”。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 05 可行性 ============ -->
+<section id="feasibility">
+  <div class="sec-head"><span class="tag">05</span><h2>可行性调研</h2></div>
+  <p class="lead">市场端：低端“铺量软文”在推理模型的信源过滤下快速失效，纯监测看板客户不知下一步做什么——
+    <b>合规白帽 + 事实库 + 本土信源 + 监测到落地一体化</b>存在明确的差异化空间，尤其适合 Agency 渠道。</p>
+
+  <h3>监测采集路线评估</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>路线</th><th>做法</th><th>稳定性与成本</th><th>数据真实性</th><th>合规风险</th><th>决策</th></tr>
+    <tr><td><b>A 服务端爬虫 / 逆向接口</b></td><td>代理 IP、打码、小号 Cookie 池抓取</td><td>差，风控升级后维护成本不可控</td><td>高</td><td><span class="pill bad">红线</span> 违反服务条款，存在不正当竞争与侵入系统风险</td><td><span class="pill bad">否决</span></td></tr>
+    <tr><td><b>B 官方联网 API</b></td><td>火山方舟、阿里百炼联网搜索</td><td>高，SLA 稳定，单次约 ¥0.03–0.18（以 S0 实测为准）</td><td>中，检索策略与同名 App 存在差异</td><td><span class="pill ok">合规</span> 官方商用协议</td><td><span class="pill ok">L1 趋势底座</span></td></tr>
+    <tr><td><b>C 浏览器合规采集助手</b></td><td>运营本人浏览器登录，插件辅助填词并提取渲染后的回答 / 思考链 / 引用</td><td>高，无服务端封禁成本</td><td>高，与用户所见一致</td><td><span class="pill ok">可控</span> 真人会话，不绕验证码、不破解协议</td><td><span class="pill ok">L2 正式核验</span></td></tr>
+  </table></div>
+
+  <div class="grid g2 mt">
+    <div class="card">
+      <h3>自媒体发布能力边界（首版）</h3>
+      <div class="tbl-wrap" style="border:none"><table>
+        <tr><th>渠道</th><th>方式</th><th>阶段</th></tr>
+        <tr><td>微信公众号</td><td>内联样式渲染包 + 官方草稿箱接口直推，后台人工确认群发</td><td><span class="pill ok">P0</span></td></tr>
+        <tr><td>知乎 / 百家号 / 头条</td><td>通用图文写接口未普遍开放 → 一键复制素材包 + URL 回填自动巡检</td><td><span class="pill ok">P0</span></td></tr>
+        <tr><td>抖音 / 快手 / B 站</td><td>官方视频上传接口，需企业资质与逐次用户授权</td><td><span class="pill warn">P1/P2</span></td></tr>
+        <tr><td>小红书</td><td>开放平台仅 basic_info，笔记须人工发布</td><td><span class="pill warn">人工</span></td></tr>
+        <tr><td>搜狐 / 网易 / 企鹅 / 大鱼 / CSDN / 掘金</td><td>验证核心渠道 ROI 前不开发专属适配器</td><td><span class="pill info">P2</span></td></tr>
+      </table></div>
+    </div>
+    <div class="card">
+      <h3>合规红线</h3>
+      <ul class="clean">
+        <li><b>《人工智能生成合成内容标识办法》</b>（2025-09-01 施行）：记录生成模型、时间与人工修改比例；导出附显式声明，提醒勾选平台 AI 声明，不提供去水印功能。</li>
+        <li><b>数据安全与个人信息保护</b>：数据库、对象存储、默认模型接口全部位于中国大陆境内节点；日志导入前脱敏 IP、手机号与 Cookie/Token。</li>
+        <li><b>《广告法》与行业准入</b>：内置极限词预检；首期不承接医疗诊疗、处方药、非法金融、博彩等高监管行业。</li>
+        <li><b>开源许可</b>：MIT 项目（OpenGEO、Elmo、GeoLook、GEOInflow）只借鉴思路自研实现；AGPL / GPL / 无许可证项目代码零拷贝。</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 class="mt" style="margin-top:22px">单品牌月度成本（标准套餐）</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>成本科目</th><th class="num">保守</th><th class="num">基准</th><th class="num">高消耗</th><th>依据</th></tr>
+    <tr><td>L1 联网采样 API</td><td class="num">¥216</td><td class="num">¥540</td><td class="num">¥1,350</td><td>约 5,400 次/月 × ¥0.04 / 0.10 / 0.25</td></tr>
+    <tr><td>语义提取与内容生成</td><td class="num">¥60</td><td class="num">¥150</td><td class="num">¥320</td><td>轻量模型抽取 + 旗舰模型生成 8 篇草稿</td></tr>
+    <tr><td>抓取、存储与云分摊</td><td class="num">¥40</td><td class="num">¥80</td><td class="num">¥160</td><td>去重缓存抓取 + 私有 OSS + PG 分摊</td></tr>
+    <tr class="total"><td>纯 SaaS 边际成本</td><td class="num">¥316</td><td class="num">¥770</td><td class="num">¥1,830</td><td>软件订阅边际毛利约 75%–85%</td></tr>
+    <tr><td>人工交付与 C 端采样工时</td><td class="num">¥1,600</td><td class="num">¥2,400</td><td class="num">¥3,600</td><td>综合时薪 ¥150 × 约 16 小时（客户自运营则无此项）</td></tr>
+    <tr class="total"><td>含轻代运营总直接成本</td><td class="num">¥1,916</td><td class="num">¥3,170</td><td class="num">¥5,430</td><td>不含销售佣金与产研固定摊销</td></tr>
+  </table></div>
+
+  <div class="grid g3 mt">
+    <div class="card"><span class="pill info">纯 SaaS</span><h3 style="margin-top:8px">专业监测诊断版</h3><div class="kpi" style="padding:0"><div class="value">¥2,980–3,980</div><div class="hint">/ 品牌 / 月 · 目标毛利 75%–82%</div></div><p style="color:var(--muted);font-size:13px;margin:8px 0 0">40 核心题、2 个 API 通道日采、采集插件授权、Studio（客户自运营）</p></div>
+    <div class="card"><span class="pill ok">SaaS + 服务</span><h3 style="margin-top:8px">增长代运营一体版</h3><div class="kpi" style="padding:0"><div class="value">¥9,800–16,800</div><div class="hint">/ 品牌 / 月 · 季度起签 · 目标毛利 60%–72%</div></div><p style="color:var(--muted);font-size:13px;margin:8px 0 0">含建档补证、月度官网改造包、6–8 篇 1+3 内容、每周 C 端实测报告</p></div>
+    <div class="card"><span class="pill warn">渠道</span><h3 style="margin-top:8px">Agency 伙伴版</h3><div class="kpi" style="padding:0"><div class="value">¥4,800 + ¥1,200</div><div class="hint">工作区 / 月 + 每新增品牌 / 月 · 目标毛利 70%–80%</div></div><p style="color:var(--muted);font-size:13px;margin:8px 0 0">多客户隔离、<code>project_grant</code> 委托、白标报告、批量采集席位</p></div>
+  </div>
+</section>
+
+<!-- ============ 06 Spec ============ -->
+<section id="spec">
+  <div class="sec-head"><span class="tag">06</span><h2>技术架构与开发 Spec</h2></div>
+  <p class="lead">三条架构决策：<b>单语言 Monorepo、Web 与 Worker 双进程分离</b>；<b>PostgreSQL 一库承载业务表 + RLS + Outbox + 队列</b>（MVP 不引入 Kafka、向量库、ClickHouse）；<b>服务端 API + 桌面插件 + 受控抓取三端协同采集</b>。</p>
+
+  <div class="grid g-arch">
+    <div class="card">
+      <h3>系统分层</h3>
+      <div class="arch">
+        <div class="tier"><div class="tn">客户端与边缘</div><div class="boxes">
+          <div class="box"><b>Web 控制台</b><small>品牌方 / 运营 / 分析师 / Agency</small></div>
+          <div class="box hl"><b>GeoPro Capture Extension</b><small>Chrome MV3 · 真实 C 端采集助手</small></div>
+        </div></div>
+        <div class="arrow">▼ Nginx / ALB（TLS、限流）· 插件持短期受限采集 Token 上传</div>
+        <div class="tier"><div class="tn">应用计算层（中国大陆同可用区容器）</div><div class="boxes">
+          <div class="box"><b>Next.js 16 Web</b><small>RSC 查询 · Server Actions · 202 异步登记</small></div>
+          <div class="box"><b>packages/*</b><small>contracts · domain · application · auth</small></div>
+          <div class="box hl"><b>TS Worker</b><small>调度 · Outbox 投递 · 采集 / 思考链解析 / 审计 / 发布 / 报告</small></div>
+          <div class="box"><b>Playwright 渲染池</b><small>按需隔离，仅用于 JS 空壳官网审计</small></div>
+        </div></div>
+        <div class="arrow">▼ 租约领取 · 幂等结算</div>
+        <div class="tier"><div class="tn">持久化</div><div class="boxes">
+          <div class="box"><b>PostgreSQL 17</b><small>业务表（RLS）+ Outbox + pg-boss</small></div>
+          <div class="box"><b>阿里云私有 OSS</b><small>原始响应 · 思考链原文 · 网页快照 · 截图</small></div>
+        </div></div>
+        <div class="arrow">▼ 外部生态</div>
+        <div class="tier"><div class="tn">外部</div><div class="boxes">
+          <div class="box"><b>L1 官方联网 API</b><small>火山方舟 · 阿里百炼 · DeepSeek</small></div>
+          <div class="box"><b>真实 C 端网页</b><small>豆包 · 元宝 · DeepSeek · Kimi · 百度 AI</small></div>
+          <div class="box"><b>受控发布接口</b><small>公众号草稿 API · WordPress REST</small></div>
+        </div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Monorepo 目录</h3>
+<pre class="tree">huowang-harness/
+├─ apps/
+│  ├─ web/            <span class="c"># Next.js 16 控制台</span>
+│  │  └─ app/(console)/w/[workspaceId]/
+│  │     ├─ b/[brandId]/{overview,foundation,
+│  │     │   monitoring,studio,distribution,
+│  │     │   experiments}
+│  │     └─ settings/
+│  ├─ worker/         <span class="c"># scheduler · dispatcher · handlers</span>
+│  └─ capture-ext/    <span class="c"># Chrome MV3 采集助手</span>
+├─ packages/
+│  ├─ contracts/      <span class="c"># Zod Schema · DTO · 错误码</span>
+│  ├─ domain/         <span class="c"># metrics-v2 · Linter · 状态机</span>
+│  ├─ application/    <span class="c"># 用例与端口</span>
+│  ├─ db/             <span class="c"># Drizzle · 迁移 · RLS 策略</span>
+│  ├─ auth/           <span class="c"># Better Auth · project_grant</span>
+│  ├─ adapters/       <span class="c"># 方舟/百炼 · OSS · 安全抓取 · 微信</span>
+│  ├─ queue/          <span class="c"># pg-boss · 租约 · 退避重试</span>
+│  └─ observability/  <span class="c"># Pino 脱敏日志 · TraceId</span>
+├─ docs/              <span class="c"># 五册规范文档</span>
+└─ geo-platform-report.html</pre>
+      <div class="note info" style="margin-top:12px">CI 强制依赖方向：浏览器端代码禁止导入 <code>db</code>、<code>auth</code> 服务端、<code>adapters</code>、<code>queue</code>。</div>
+    </div>
+  </div>
+
+  <div class="tabs mt" data-tabs="spec" style="margin-top:18px">
+    <button class="tab active" data-t="data" type="button">数据模型与不变量</button>
+    <button class="tab" data-t="api" type="button">核心接口</button>
+    <button class="tab" data-t="state" type="button">状态机</button>
+    <button class="tab" data-t="sec" type="button">安全与测试红线</button>
+  </div>
+
+  <div class="tab-panel active" data-p="spec:data">
+    <div class="note info" style="margin:0 0 12px">双重多租户隔离：所有业务表带 <code>tenant_id</code>，子表用 <code>(tenant_id, brand_id)</code> 复合外键；运行角色 <code>geo_app</code> 非表 Owner、无 BYPASSRLS，每个事务内 <code>set_config('app.tenant_id', $1, true)</code>。</div>
+    <div class="tbl-wrap"><table>
+      <tr><th>业务域</th><th>核心表</th><th>关键字段</th><th>不变量</th></tr>
+      <tr><td><b>目标与底座</b></td><td><code>customer_success_plan</code> <code>brand</code> <code>fact_version</code></td><td>goal_type、target_engines[]、lead_criteria、valid_until</td><td>事实审批与内容审批分离；事实过期自动阻断关联待发稿</td></tr>
+      <tr><td><b>问题与计划</b></td><td><code>intent_cluster</code> <code>prompt_version</code> <code>measurement_plan</code></td><td>is_high_intent、primary_page_url、daily_slots、budget_cap_cents</td><td>改题文 / 地区 / 竞品集必须新建版本，不覆盖历史</td></tr>
+      <tr><td><b>采样与思考链</b></td><td><code>scheduled_sample</code> <code>run_attempt</code> <code>observation</code></td><td>evidence_type、raw_oss_key、reasoning_oss_key、cot_rejection_tags[]</td><td>唯一键锁定槽位；<b>observation 只追加</b>；重试只加 attempt 不扩大分母</td></tr>
+      <tr><td><b>引用与官网</b></td><td><code>citation</code> <code>source_page</code> <code>site_audit_run</code></td><td>normalized_url、ownership_type、ssr_readable、ttfb_ms</td><td>共享平台域名不得整域判为自有，须匹配已登记账号或 URL</td></tr>
+      <tr><td><b>内容与分发</b></td><td><code>content_brief</code> <code>content_variant</code> <code>approval</code> <code>publication</code></td><td>bound_fact_ids[]、ai_friendly_score、variant_hash、publish_mode、effective_at</td><td>审批绑定 hash + 事实修订号，改一字即失效；发布超时进 unknown，<b>禁止自动重发</b></td></tr>
+      <tr><td><b>复测与账本</b></td><td><code>experiment</code> <code>qualified_lead</code> <code>usage_event</code> <code>report_snapshot</code></td><td>window_type（D7/D14/D28）、evidence_strength、cost_micros</td><td>观察窗口按 effective_at 起算；供应商成本与客户扣费分表记账</td></tr>
+    </table></div>
+  </div>
+
+  <div class="tab-panel" data-p="spec:api">
+    <div class="tbl-wrap"><table>
+      <tr><th>端点</th><th>调用方</th><th>用途与幂等要求</th></tr>
+      <tr><td><code>POST /api/v1/brands/:brandId/plans/:planId/runs</code></td><td>控制台</td><td>启动采样；校验 Idempotency-Key 与预算上限；写 Outbox 返回 202 + operationId</td></tr>
+      <tr><td><code>GET /api/v1/brands/:brandId/capture-tasks</code></td><td>采集助手</td><td>拉取分配给当前运营的 C 端高意图题单（含全新会话指引）</td></tr>
+      <tr><td><code>POST /api/v1/brands/:brandId/consumer-observations</code></td><td>采集助手</td><td>提交回答、思考链、引用与截图键；校验短期采集 Token 与题目版本</td></tr>
+      <tr><td><code>POST /api/v1/sites/:siteId/audits</code></td><td>控制台</td><td>官网 AI 可读性与大陆加载耗时（TTFB、SSR vs CSR）审计，异步返回</td></tr>
+      <tr><td><code>POST /api/v1/briefs/:briefId/generate-draft</code></td><td>Studio</td><td>基于已确认简报与批准事实生成草稿并运行六维 Linter</td></tr>
+      <tr><td><code>POST /api/v1/variants/:variantId/approvals</code></td><td>品牌管理员</td><td>锁定 variantHash + factRevision；乐观锁冲突返回 409</td></tr>
+      <tr><td><code>POST /api/v1/publications</code></td><td>运营 / 管理员</td><td>导出素材包、推送公众号草稿或回填 URL 并触发异步巡检</td></tr>
+      <tr><td><code>POST /api/v1/experiments/:expId/snapshots</code></td><td>分析师 / PM</td><td>生成不可变对比快照与客户报告（锁定分子、分母、共同题与版本）</td></tr>
+    </table></div>
+  </div>
+
+  <div class="tab-panel" data-p="spec:state">
+    <div class="card">
+      <b>采样槽位</b>
+      <div class="sm"><span class="st">scheduled</span><span class="ar">→</span><span class="st">running</span><span class="ar">→</span><span class="st g">succeeded</span><span class="st r">failed</span><span class="st y">paused</span><span class="st y">missed</span></div>
+      <p style="margin:0 0 12px;color:var(--muted);font-size:13px">停机错过的槽位显式记 missed，不事后补采伪造时间。原文已落盘但解析失败时置 <code>analysis_pending</code>，只重跑分析队列，不重复调用付费接口。</p>
+      <b>内容审批</b>
+      <div class="sm"><span class="st">draft</span><span class="ar">→</span><span class="st">in_review</span><span class="ar">→</span><span class="st g">approved</span><span class="ar">→</span><span class="st r">invalidated</span></div>
+      <b>远端发布</b>
+      <div class="sm"><span class="st">not_started</span><span class="ar">→</span><span class="st">draft_pushed</span><span class="ar">→</span><span class="st">submitted</span><span class="ar">→</span><span class="st">platform_review</span><span class="ar">→</span><span class="st g">public</span><span class="st r">rejected</span><span class="st y">unknown</span></div>
+      <b>线上验证</b>
+      <div class="sm"><span class="st">pending</span><span class="ar">→</span><span class="st g">verified_public</span><span class="st r">content_mismatch</span><span class="st y">access_limited</span></div>
+      <p style="margin:0;color:var(--muted);font-size:13px">只有 verified_public（或无公开 URL 渠道经人工双签核验）才写入 <code>effective_at</code> 并启动 D+7/14/28 计时。</p>
+    </div>
+  </div>
+
+  <div class="tab-panel" data-p="spec:sec">
+    <div class="grid g2">
+      <div class="card"><h3>安全护栏</h3><ul class="clean">
+        <li>抓取器在连接层校验解析后的真实 IP，阻断内网段与 <code>169.254.169.254</code>，每次 30x 重定向重新校验；单页 ≤ 5MB、超时 10s。</li>
+        <li>外部网页与 AI 回答一律视为不可信输入：前端默认转义或白名单清洗，禁止裸 <code>dangerouslySetInnerHTML</code>。</li>
+        <li>分析模型无权调用发布或写库工具，隔离 Prompt 注入。</li>
+      </ul></div>
+      <div class="card"><h3>上线前必过测试</h3><ul class="clean">
+        <li><b>指标手算一致性</b>：100% 覆盖 metrics-v2 边界算例（未联网排除、同名歧义、空引用 0 vs N/A、SoV 去重）。</li>
+        <li><b>200 条黄金标注集</b>：实体识别精确率 ≥ 95%、召回率 ≥ 90%；引用 URL 提取准确率 ≥ 98%。</li>
+        <li><b>多租户越权对抗</b>：双租户 + 委托撤销场景下查询、修改、轮询、OSS 下载 100% 阻断。</li>
+        <li><b>故障注入</b>：72 小时连续调度，模拟 Worker 强杀、429 限流、发布超时；零重复扣费、零盲目重发；RPO ≤ 24h、RTO ≤ 4h。</li>
+      </ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 07 排期 ============ -->
+<section id="roadmap">
+  <div class="sec-head"><span class="tag">07</span><h2>10 周排期与阶段门禁</h2></div>
+  <p class="lead">研发工期与客户内容观察窗口双线并行，但遵守先后门禁：<b>14 天基线冻结前，不上线实验目标页改动</b>。D+28 自然观察窗口延伸到第 11 周，不计入研发交付签收。</p>
+
+  <div class="card">
+    <div class="gantt" id="gantt"></div>
+    <div class="legend" style="margin-top:14px">
+      <span><i style="background:linear-gradient(90deg,var(--brand),var(--brand-2))"></i>研发</span>
+      <span><i style="background:#12a26b"></i>客户运营</span>
+      <span><i style="background:#d98a00"></i>自然观察窗口</span>
+      <span><i style="border-left:2px dashed var(--bad);width:2px;border-radius:0"></i>阶段门禁</span>
+    </div>
+  </div>
+
+  <div class="tbl-wrap mt"><table>
+    <tr><th>阶段</th><th>周期</th><th>核心交付物</th><th>退出门禁</th></tr>
+    <tr><td><b>S0 立项验证</b></td><td>W1</td><td>方舟 / 百炼联网 API 响应与成本探针；Next.js + Worker + PG 最小贯通；1 个垂直行业 3 家种子客户意向</td><td><span class="pill info">G0</span> 至少 1 条 API 拿到回答 + 原生引用 + 计费字段；确认 C 端 DOM / 思考链可提取</td></tr>
+    <tr><td><b>S1 底座建档</b></td><td>W2–W3 上</td><td>Monorepo、Better Auth 与代理商权限、RLS、事实库审批、题集冻结、单次采样落盘</td><td><span class="pill info">G1</span> 双租户越权 100% 阻断；首个品牌题集冻结并<b>启动 14 天基线</b></td></tr>
+    <tr><td><b>S2 监测与质量</b></td><td>W3 下–W4</td><td>pg-boss + Outbox、预算预留、Chrome 采集助手首版、实体 / 引用 / 思考链解析、黄金标注集</td><td><span class="pill info">G2</span> 连续 72h 无故障；V/P ≥ 95%；实体精确率 ≥ 95%、引用提取 ≥ 98%</td></tr>
+    <tr><td><b>S3 诊断与 Studio</b></td><td>W5–W6 上</td><td>防 SSRF 抓取、官网审计、补证工单、内容简报、绑定事实生成与 Linter</td><td><span class="pill info">G3</span> 基线结束并生成不可变快照；每家客户 3–5 项有证据支撑的简报</td></tr>
+    <tr><td><b>S4 审批与分发</b></td><td>W6 下–W7</td><td>Hash 审批锁、官网改造包、1+3 导出包、公众号草稿连接器（可降级）、URL 巡检</td><td><span class="pill info">G4</span> 每家至少 3 项内容公开上线且通过核验，记录 effective_at</td></tr>
+    <tr><td><b>S5 复测验收</b></td><td>W8–W10</td><td>D+7/14 对比看板、线索台账、不可变报告、单客户毛利对账、备份恢复演练</td><td><span class="pill info">G5a</span> 第 10 周末客户签收执行成果与 D+14 报告<br /><span class="pill info">G5b</span> 满 D+28 完成持续性复盘</td></tr>
+    <tr><td><b>S6 商业化</b></td><td>W11+</td><td>正式报价单、WordPress 连接器、视频平台 API、5 → 20 → 100 品牌容量压测</td><td><span class="pill info">G6</span> 真实付费 / 续费且单品牌直接毛利 ≥ 60% 才启动扩容研发</td></tr>
+  </table></div>
+
+  <div class="card mt">
+    <h3>研发工作包（Epic）人日分布</h3>
+    <div id="epics"></div>
+    <div class="legend"><span><i style="background:var(--brand)"></i>前端 / 全栈</span><span><i style="background:var(--brand-2)"></i>后端 / Worker / AI</span><span><i style="background:var(--warn)"></i>20% 缓冲</span></div>
+    <div class="note info">产能核验：2.5 名研发 × 10 周（50 个工作日）= 125 可用人日 &gt; 112 需求人日。</div>
+  </div>
+</section>
+
+<!-- ============ 08 资源 ============ -->
+<section id="resources">
+  <div class="sec-head"><span class="tag">08</span><h2>资源投入与预算</h2></div>
+
+  <div class="tabs" data-tabs="team">
+    <button class="tab active" data-t="a" type="button">方案 A · 标准编制 4.5 FTE（推荐）</button>
+    <button class="tab" data-t="b" type="button">方案 B · 精简编制 2.5–3 FTE</button>
+  </div>
+  <div class="tab-panel active" data-p="team:a">
+    <div class="tbl-wrap"><table>
+      <tr><th>岗位</th><th class="num">投入</th><th>职责</th><th>能力要求</th></tr>
+      <tr><td><b>产品与交付负责人</b></td><td class="num">1.0</td><td>需求把控、种子客户访谈、冻结 CSP、把控 G0–G6、客户周会与结案</td><td>懂 B2B 获客与内容营销，擅长客户预期管理</td></tr>
+      <tr><td><b>技术负责人 / 后端与 AI</b></td><td class="num">1.0</td><td>架构、RLS 与迁移、调度、大模型 Adapter、思考链解析 Prompt、安全抓取</td><td>TypeScript / Node.js、PostgreSQL 事务与锁、国产大模型 API 实战</td></tr>
+      <tr><td><b>资深全栈（Next.js）</b></td><td class="num">1.0</td><td>6 大工作台前端、Studio 编辑器与 Diff 审批、报表交互</td><td>App Router、Tailwind / shadcn、复杂表单与表格状态</td></tr>
+      <tr><td><b>全栈 / 浏览器插件</b></td><td class="num">0.5</td><td>Chrome 采集助手、公众号草稿连接器、E2E 自动化</td><td>Chrome Extension DOM 解析；可由前两人分担但工期 +2 周</td></tr>
+      <tr><td><b>GEO 内容策略与分析</b></td><td class="num">1.0</td><td>40 题挖掘、黄金标注集、每周 C 端核验、简报与 1+3 标杆稿件</td><td>B2B 深度长文写作 + 数据分析</td></tr>
+      <tr class="total"><td>合计</td><td class="num">4.5</td><td colspan="2">10 周高质量交付 3–5 家试点客户</td></tr>
+    </table></div>
+  </div>
+  <div class="tab-panel" data-p="team:b">
+    <div class="card">
+      <p style="margin-top:0"><b>人员</b>：1 名产品兼内容运营负责人 + 1.5–2 名全栈开发。</p>
+      <p><b>必须同步执行的范围裁剪</b>：</p>
+      <ul class="clean">
+        <li>首期只服务 1–2 家种子客户，自动 API 通道只接 1 个最稳定的（方舟或百炼）。</li>
+        <li>暂缓公众号草稿 API 连接器，全部走一键复制素材包 + URL 回填。</li>
+        <li>暂缓官网脱敏日志导入，只保留公开 URL 可读性审计。</li>
+        <li>研发周期放宽到 10–12 周，优先保证证据真实性与核心闭环。</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="grid g2 mt">
+    <div>
+      <h3>10 周外部直接预算（6 个活跃品牌槽位，不含薪资）</h3>
+      <div class="tbl-wrap"><table>
+        <tr><th>费用</th><th>配置</th><th class="num">月度</th><th class="num">10 周</th></tr>
+        <tr><td>云主机</td><td>ECS 2 台（4C8G + 4C16G）+ SLB / 带宽</td><td class="num">¥950</td><td class="num">¥2,375</td></tr>
+        <tr><td>托管数据库</td><td>RDS PostgreSQL 17 高可用基础版 + 备份</td><td class="num">¥650</td><td class="num">¥1,625</td></tr>
+        <tr><td>对象存储与网络</td><td>私有 OSS 约 50GB + 邮件推送</td><td class="num">¥120</td><td class="num">¥300</td></tr>
+        <tr><td>大模型采样与生成</td><td>6 品牌 × 约 ¥750 + PoC 余量，预算硬顶熔断</td><td class="num">¥4,500</td><td class="num">¥11,250</td></tr>
+        <tr><td>域名备案杂项</td><td>域名、SSL、ICP 备案、测试认证账号</td><td class="num">—</td><td class="num">¥1,000</td></tr>
+        <tr class="total"><td>合计</td><td></td><td class="num">≈ ¥6,220</td><td class="num">≈ ¥16,550</td></tr>
+      </table></div>
+      <div class="note info">签约 2 家增长代运营版试点（¥9,800 / 月）即可在首季覆盖全部外部基础设施与 API 现金成本（不含人力）。</div>
+    </div>
+
+    <div class="card">
+      <h3>单品牌 ROI 测算器</h3>
+      <p style="margin:0 0 12px;color:var(--muted);font-size:13px">调整参数查看单品牌月度毛利与覆盖平台固定成本所需的品牌数。默认值为基准情景。</p>
+      <div class="calc" style="grid-template-columns:1fr">
+        <div>
+          <div class="field">
+            <label>套餐</label>
+            <div class="seg" id="planSeg">
+              <button type="button" data-plan="saas">专业监测版</button>
+              <button type="button" data-plan="growth" class="on">增长代运营版</button>
+              <button type="button" data-plan="agency">Agency 新增品牌</button>
+            </div>
+          </div>
+          <div class="field"><label>月费（¥ / 品牌）<output id="oPrice"></output></label><input type="range" id="price" min="1000" max="20000" step="100" value="9800" /></div>
+          <div class="field"><label>核心题数 × API 通道 × 每日次数<output id="oCalls"></output></label>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+              <input type="range" id="q" min="20" max="80" step="5" value="40" title="核心题数" />
+              <input type="range" id="ch" min="1" max="4" step="1" value="2" title="API 通道数" />
+              <input type="range" id="freq" min="1" max="3" step="1" value="2" title="每日采样次数" />
+            </div>
+          </div>
+          <div class="field"><label>单次联网调用成本（¥）<output id="oUnit"></output></label><input type="range" id="unit" min="0.02" max="0.30" step="0.01" value="0.10" /></div>
+          <div class="field"><label>人工交付工时（小时 / 月）<output id="oHours"></output></label><input type="range" id="hours" min="0" max="40" step="1" value="16" /></div>
+          <div class="field"><label>综合时薪（¥）<output id="oRate"></output></label><input type="range" id="rate" min="80" max="300" step="10" value="150" /></div>
+        </div>
+        <div>
+          <div class="big-res">
+            <div class="kpi"><div class="label">单品牌月毛利</div><div class="value" id="rProfit">—</div><div class="hint" id="rMarginTxt">—</div><div class="marginbar"><i id="rBar"></i></div></div>
+            <div class="kpi"><div class="label">覆盖固定云成本所需品牌数</div><div class="value" id="rBe">—</div><div class="hint">固定云资源 ¥1,720 / 月（ECS + RDS + OSS）</div></div>
+          </div>
+          <div class="res-row"><span>月采样调用（含 12.5% 探索与重试缓冲）</span><b id="rCalls">—</b></div>
+          <div class="res-row"><span>采样 API 成本</span><b id="rApi">—</b></div>
+          <div class="res-row"><span>语义提取、生成与存储分摊</span><b id="rOther">—</b></div>
+          <div class="res-row"><span>人工交付成本</span><b id="rLabor">—</b></div>
+          <div class="res-row"><span>单品牌直接成本合计</span><b id="rCost">—</b></div>
+        </div>
+      </div>
+      <div class="note" id="rWarn" style="display:none"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 09 风险 ============ -->
+<section id="risks">
+  <div class="sec-head"><span class="tag">09</span><h2>核心风险与应对</h2></div>
+  <div class="tbl-wrap"><table>
+    <tr><th>等级</th><th>风险</th><th>触发信号</th><th>应对与降级</th></tr>
+    <tr><td><span class="pill bad">高</span></td><td><b>客户资料拖延或官网迟迟无法修改</b></td><td>S1 建档超 5 天拿不到参数；官网 IT 排期超 2 周</td><td>立项时确认甲方专职对接人；官网阻塞时先用公众号 + 知乎机构号 + 百家号承载事实，不卡死实验周期</td></tr>
+    <tr><td><span class="pill bad">高</span></td><td><b>客户期望“7 天包上 AI 榜首”</b></td><td>销售签约阶段过度承诺</td><td>CSP 合同条款明确 GEO 是基于真实优势的内容工程；区分 G5a 执行验收与 G5b 自然观察；禁止承诺排名</td></tr>
+    <tr><td><span class="pill warn">中</span></td><td><b>C 端网页改版导致插件选择器失效</b></td><td>某平台 DOM 更新，引用提取为空</td><td>多层语义特征回退 + 远程热更新选择器配置；保底支持“划词选区存证”</td></tr>
+    <tr><td><span class="pill warn">中</span></td><td><b>模型调整联网触发阈值或计费单价</b></td><td>E/P 突降或单样本费用翻倍</td><td>Adapter 实时监控 search_state 与 usage，超阈值自动暂停通道并告警，报告标记环境断点</td></tr>
+  </table></div>
+</section>
+
+<!-- ============ 10 文档 ============ -->
+<section id="docs">
+  <div class="sec-head"><span class="tag">10</span><h2>规范文档导航</h2></div>
+  <p class="lead"><code>docs/</code> 五册是项目单一事实源；<code>geo-prd/</code> 仅作历史归档，表述冲突时以 <code>docs/</code> 为准。</p>
+  <div class="grid g3 docs-grid">
+    <a class="card" href="docs/01-项目立项与方案审查总览.md"><span class="dn">01</span><h3>项目立项与方案审查总览</h3><p>项目章程、原 17 份文档审查、6 大定制升级、业务闭环</p><span class="pill info">管理层 · 全员</span></a>
+    <a class="card" href="docs/02-产品需求文档-PRD.md"><span class="dn">02</span><h3>产品需求文档 PRD</h3><p>角色权限、6 大模块、40+10 题集、内容准则、metrics-v2、试点 SOP</p><span class="pill info">产品 · 设计 · 运营 · 交付</span></a>
+    <a class="card" href="docs/03-中国大陆GEO可行性调研报告.md"><span class="dn">03</span><h3>中国大陆 GEO 可行性调研</h3><p>引擎信源矩阵、采集路线评估、渠道接口边界、合规、单客户经济模型</p><span class="pill info">商业 · 产品 · 法务</span></a>
+    <a class="card" href="docs/04-技术架构与开发规格说明书-Spec.md"><span class="dn">04</span><h3>技术架构与开发 Spec</h3><p>架构拓扑、Monorepo、数据模型与 RLS、接口契约、状态机、安全测试</p><span class="pill info">研发 · 测试 · 运维</span></a>
+    <a class="card" href="docs/05-资源投入与里程碑排期计划.md"><span class="dn">05</span><h3>资源投入与里程碑排期</h3><p>10 周路线图、G0–G6 门禁、Epic 工时、双编制、预算与风险</p><span class="pill info">PMO · TL · 财务</span></a>
+    <a class="card" href="geo-prd/README.md"><span class="dn">归档</span><h3>geo-prd 历史资料</h3><p>v1.0–v1.2 调研记录、初稿、修改建议与阶段细则，仅供溯源</p><span class="pill warn">只读参考</span></a>
+  </div>
+</section>
+
+<footer>
+  GeoPro（智脉 GEO）项目全景报告 v2.0 · 2026-11-16 · 内容与 <code>docs/</code> v2.0 五册保持一致。
+  成本、单价与引擎信源偏好为规划期估算与经验假设，以 S0 实测与 G2 引用统计为准校准。
+</footer>
+
+</main>
+
+<script>
+(function () {
+  /* ---------- 主题 ---------- */
+  var root = document.documentElement;
+  var themeBtn = document.getElementById('themeBtn');
+  function applyTheme(t) {
+    root.setAttribute('data-theme', t);
+    themeBtn.textContent = t === 'dark' ? '浅色模式' : '深色模式';
+    try { localStorage.setItem('geopro-theme', t); } catch (e) {}
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('geopro-theme'); } catch (e) {}
+  applyTheme(saved || 'light');
+  themeBtn.addEventListener('click', function () {
+    applyTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  });
+
+  /* ---------- 导航高亮 ---------- */
+  var links = Array.prototype.slice.call(document.querySelectorAll('#nav a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function onScroll() {
+    var y = window.scrollY + 120, idx = 0;
+    sections.forEach(function (s, i) { if (s && s.offsetTop <= y) idx = i; });
+    if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 4) idx = sections.length - 1;
+    links.forEach(function (a, i) { a.classList.toggle('active', i === idx); });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  /* ---------- 标签页 ---------- */
+  document.querySelectorAll('[data-tabs]').forEach(function (group) {
+    var name = group.getAttribute('data-tabs');
+    group.querySelectorAll('.tab').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        group.querySelectorAll('.tab').forEach(function (b) { b.classList.toggle('active', b === btn); });
+        document.querySelectorAll('[data-p^="' + name + ':"]').forEach(function (p) {
+          p.classList.toggle('active', p.getAttribute('data-p') === name + ':' + btn.getAttribute('data-t'));
+        });
+      });
+    });
+  });
+
+  /* ---------- 引擎 × 信源矩阵 ---------- */
+  var sources = ['企业官网', '微信公众号', '知乎', '百家号/头条', '短视频', 'B站', '技术社区', '百科/行业媒体'];
+  var engines = [
+    { name: 'DeepSeek', sub: 'App / 网页联网版', h: [3, 1, 3, 1, 0, 1, 3, 2],
+      trait: '全网高密度网页检索 + R1 强推理去噪，对空洞公关软文剔除率高。',
+      prefer: '客观参数对比表、明确技术指标、适用边界与局限说明、定价逻辑与真实测试条件。',
+      access: '官方 API（推理模型需配合标准搜索候选参考）+ L2 采集助手抓取网页联网版及完整思考链。' },
+    { name: '字节豆包', sub: 'Doubao App / 网页版', h: [2, 1, 2, 3, 3, 1, 1, 2],
+      trait: '头条搜索全网索引 + 抖音生态知识 + 深度思考模式。',
+      prefer: '条理清晰的选购指南、带适用人群分类的方案盘点、FAQ 问答结构。',
+      access: 'L1 火山方舟联网搜索 API + L2 采集助手核验豆包网页版。' },
+    { name: '腾讯元宝', sub: '混元 + DeepSeek 双模', h: [2, 3, 1, 1, 2, 0, 1, 2],
+      trait: '接入微信公众号内容生态与微信搜一搜，兼有网页索引。',
+      prefer: '公众号长文中的清晰小标题、经验总结、真实案例拆解、白皮书摘要。',
+      access: '混元联网接口候选 + L2 采集助手抓取元宝网页版（可提取公众号原生引用卡片）。' },
+    { name: 'Kimi', sub: '月之暗面网页 / App', h: [3, 2, 3, 1, 0, 0, 1, 2],
+      trait: '长上下文多网页精读，会跨多篇来源交叉核验事实一致性。',
+      prefer: '官网产品手册 / 帮助中心、知乎深度专栏；官网与外部内容参数矛盾时会被指出。',
+      access: 'Moonshot API 联网工具候选 + L2 采集助手抓取网页版引用链。' },
+    { name: '百度 AI 搜索', sub: '文心 / 百度 App', h: [3, 0, 1, 3, 0, 0, 1, 3],
+      trait: '百度网页索引 + 百家号、百科、知道等自有内容生态。',
+      prefer: '标题精确匹配长尾问题、首段直接定义、结构化列表与清晰更新时间。',
+      access: '百度千帆联网 API 候选 + L2 采集助手核验百度 AI 搜索页。' },
+    { name: '通义千问 / 夸克', sub: '夸克 AI 搜索', h: [3, 1, 3, 1, 0, 2, 1, 3],
+      trait: '夸克搜索索引 + 百炼检索增强。',
+      prefer: '百科式词条说明、步骤化实施指南、对比矩阵表。',
+      access: 'L1 阿里云百炼联网搜索 API（返回角标与来源）+ L2 采集助手核验。' }
+  ];
+  var heat = document.getElementById('heat');
+  var html = '<tr><th>AI 入口</th>' + sources.map(function (s) { return '<th style="text-align:center">' + s + '</th>'; }).join('') + '</tr>';
+  engines.forEach(function (e, i) {
+    html += '<tr class="eng" data-i="' + i + '"><td><b>' + e.name + '</b><br><small style="color:var(--muted)">' + e.sub + '</small></td>' +
+      e.h.map(function (v) { return '<td class="h h' + v + '">' + ['·', '低', '中', '高'][v] + '</td>'; }).join('') + '</tr>';
+  });
+  heat.innerHTML = html;
+  var detail = document.getElementById('engineDetail');
+  function showEngine(i) {
+    var e = engines[i];
+    var top = e.h.map(function (v, k) { return { v: v, s: sources[k] }; }).filter(function (x) { return x.v === 3; }).map(function (x) { return x.s; });
+    detail.innerHTML = '<h3>' + e.name + ' <span class="pill info">' + e.sub + '</span></h3>' +
+      '<dl class="kv"><dt>检索特征</dt><dd>' + e.trait + '</dd>' +
+      '<dt>优先投放</dt><dd>' + top.map(function (s) { return '<span class="pill ok" style="margin:0 4px 4px 0">' + s + '</span>'; }).join('') + '</dd>' +
+      '<dt>内容偏好</dt><dd>' + e.prefer + '</dd>' +
+      '<dt>监测接入</dt><dd>' + e.access + '</dd></dl>';
+    heat.querySelectorAll('tr.eng').forEach(function (r) { r.classList.toggle('sel', +r.getAttribute('data-i') === i); });
+  }
+  heat.addEventListener('click', function (ev) {
+    var tr = ev.target.closest('tr.eng');
+    if (tr) showEngine(+tr.getAttribute('data-i'));
+  });
+  showEngine(0);
+
+  /* ---------- 甘特图（单位：天，从 W1 第 0 天起，共 12 周） ---------- */
+  var TOTAL = 84;
+  var rows = [
+    { g: '研发轨' },
+    { l: 'S0 API 实测 · 架构 PoC · 签约', s: 0, d: 7, c: 'dev' },
+    { l: 'S1 多租户底座 · 事实库 · 题集', s: 7, d: 10, c: 'dev' },
+    { l: 'S2 调度 · 思考链解析 · 采集助手', s: 17, d: 11, c: 'dev' },
+    { l: 'S3 官网审计 · 简报 · Studio', s: 28, d: 10, c: 'dev' },
+    { l: 'S4 1+3 素材包 · 草稿直推 · 巡检', s: 38, d: 10, c: 'dev' },
+    { l: 'S5 实验看板 · 线索台账 · 报告', s: 48, d: 12, c: 'dev' },
+    { l: '安全加固 · 恢复演练 · 交付签收', s: 60, d: 10, c: 'dev' },
+    { g: '种子客户运营轨' },
+    { l: '14 天同条件基线采样', s: 17, d: 14, c: 'ops' },
+    { l: '补证访谈 · 简报 · 首批稿件预备', s: 21, d: 14, c: 'ops' },
+    { l: '官网改造与 1+3 渠道上线', s: 38, d: 5, c: 'ops' },
+    { l: 'D+7 / D+14 复测与线索核验', s: 43, d: 16, c: 'obs' },
+    { l: 'D+28 持续性复测与续费评审', s: 59, d: 14, c: 'obs' }
+  ];
+  var gates = [{ n: 'G0', d: 7 }, { n: 'G1', d: 17 }, { n: 'G2', d: 28 }, { n: 'G3', d: 38 }, { n: 'G4', d: 48 }, { n: 'G5a', d: 70 }, { n: 'G5b', d: 73, low: true }];
+  var gEl = document.getElementById('gantt');
+  var weeks = '';
+  for (var w = 1; w <= 12; w++) weeks += '<span>W' + w + '</span>';
+  var gh = '<div class="hdr"><div></div><div class="weeks">' + weeks + '</div></div>';
+  rows.forEach(function (r) {
+    if (r.g) { gh += '<div class="grp">' + r.g + '</div>'; return; }
+    var left = (r.s / TOTAL * 100).toFixed(2), width = (r.d / TOTAL * 100).toFixed(2);
+    var gl = gates.map(function (g) { return '<div class="gate" style="left:' + (g.d / TOTAL * 100).toFixed(2) + '%"></div>'; }).join('');
+    gh += '<div class="row"><div class="lbl" title="' + r.l + '">' + r.l + '</div><div class="track">' + gl +
+      '<div class="bar ' + r.c + '" style="left:' + left + '%;width:' + width + '%" title="' + r.l + '（' + r.d + ' 天）">' + r.d + ' 天</div></div></div>';
+  });
+  gh += '<div class="row" style="min-height:40px"><div class="lbl" style="color:var(--muted);font-size:12px">阶段门禁</div><div class="track" style="background:none;height:34px">' +
+    gates.map(function (g) { return '<div class="gate" style="left:' + (g.d / TOTAL * 100).toFixed(2) + '%"><span' + (g.low ? ' style="top:11px"' : '') + '>' + g.n + '</span></div>'; }).join('') + '</div></div>';
+  gEl.innerHTML = gh;
+
+  /* ---------- Epic 条形图 ---------- */
+  var epics = [
+    ['E01 工程底座与多租户安全', 4, 6], ['E02 品牌底座、CSP 与事实库', 5, 4], ['E03 双轨采集与调度计费', 5, 9],
+    ['E04 思考链解析与指标引擎', 4, 7], ['E05 官网审计与信源抓取', 3, 6], ['E06 AI 友好 Studio 与审批', 6, 5],
+    ['E07 1+3 分发包与巡检', 5, 6], ['E08 实验复测、线索与报告', 5, 5], ['E09 测试、可观测与部署', 3, 5]
+  ];
+  var MAX = 19;
+  var eh = epics.map(function (e) {
+    return '<div class="epic"><div>' + e[0] + '</div><div class="eb"><span class="fe" style="width:' + (e[1] / MAX * 100) + '%"></span>' +
+      '<span class="be" style="width:' + (e[2] / MAX * 100) + '%"></span></div><div class="v">' + (e[1] + e[2]) + ' 人日</div></div>';
+  }).join('');
+  eh += '<div class="epic"><div>20% 联调与风险缓冲</div><div class="eb"><span class="bf" style="width:' + (19 / MAX * 100) + '%"></span></div><div class="v">19 人日</div></div>';
+  eh += '<div class="epic" style="font-weight:700"><div>合计</div><div style="color:var(--muted);font-weight:400;font-size:12.5px">前端 48 · 后端 64（含缓冲）</div><div class="v" style="color:var(--text)">112 人日</div></div>';
+  document.getElementById('epics').innerHTML = eh;
+
+  /* ---------- ROI 测算器 ---------- */
+  var $ = function (id) { return document.getElementById(id); };
+  var FIXED_CLOUD = 950 + 650 + 120;
+  var presets = {
+    saas: { price: 3480, hours: 0 },
+    growth: { price: 9800, hours: 16 },
+    agency: { price: 1200, hours: 0 }
+  };
+  function yuan(n) { return (n < 0 ? '-¥' : '¥') + Math.abs(Math.round(n)).toLocaleString('zh-CN'); }
+  function calc() {
+    var price = +$('price').value, q = +$('q').value, ch = +$('ch').value, freq = +$('freq').value;
+    var unit = +$('unit').value, hours = +$('hours').value, rate = +$('rate').value;
+    var calls = Math.round(q * ch * freq * 30 * 1.125);
+    var api = calls * unit;
+    var other = 150 + 80;
+    var labor = hours * rate;
+    var cost = api + other + labor;
+    var profit = price - cost;
+    var margin = price > 0 ? profit / price : 0;
+    $('oPrice').textContent = yuan(price);
+    $('oCalls').textContent = q + ' 题 × ' + ch + ' 通道 × ' + freq + ' 次/天';
+    $('oUnit').textContent = '¥' + unit.toFixed(2);
+    $('oHours').textContent = hours + ' 小时';
+    $('oRate').textContent = '¥' + rate;
+    $('rCalls').textContent = calls.toLocaleString('zh-CN') + ' 次';
+    $('rApi').textContent = yuan(api);
+    $('rOther').textContent = yuan(other);
+    $('rLabor').textContent = yuan(labor);
+    $('rCost').textContent = yuan(cost);
+    $('rProfit').textContent = yuan(profit);
+    $('rProfit').style.color = profit >= 0 ? 'var(--ok)' : 'var(--bad)';
+    $('rMarginTxt').textContent = '直接毛利率 ' + (margin * 100).toFixed(1) + '%';
+    $('rBar').style.width = Math.max(0, Math.min(100, margin * 100)) + '%';
+    $('rBe').textContent = profit > 0 ? Math.ceil(FIXED_CLOUD / profit) + ' 个' : '无法覆盖';
+    var warn = $('rWarn');
+    if (profit <= 0) {
+      warn.style.display = 'block';
+      warn.textContent = '当前参数下单品牌亏损：请提高月费、降低采样频次或减少人工工时。';
+    } else if (margin < 0.6) {
+      warn.style.display = 'block';
+      warn.textContent = '直接毛利率低于 60%，未达到 G6 规模化扩容门槛。';
+    } else {
+      warn.style.display = 'none';
+    }
+  }
+  ['price', 'q', 'ch', 'freq', 'unit', 'hours', 'rate'].forEach(function (id) { $(id).addEventListener('input', calc); });
+  document.querySelectorAll('#planSeg button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('#planSeg button').forEach(function (x) { x.classList.toggle('on', x === b); });
+      var p = presets[b.getAttribute('data-plan')];
+      $('price').value = p.price;
+      $('hours').value = p.hours;
+      calc();
+    });
+  });
+  calc();
+})();
+</script>
+</body>
+</html>
