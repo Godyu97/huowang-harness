@@ -296,8 +296,96 @@
 
   .docs-grid a.card { display: block; color: var(--text); transition: transform .15s, border-color .15s; }
   .docs-grid a.card:hover { text-decoration: none; transform: translateY(-2px); border-color: var(--brand); }
+  .docs-grid a.card::after { content: "页内阅读 →"; display: block; margin-top: 12px; color: var(--brand); font-weight: 600; font-size: 12.5px; }
   .docs-grid .dn { font-family: var(--mono); color: var(--brand); font-weight: 700; font-size: 13px; }
   .docs-grid p { color: var(--muted); font-size: 13px; margin: 6px 0 8px; }
+
+  /* ---------- 页内 Markdown 阅读器 ---------- */
+  body.reading { overflow: hidden; }
+  .reader {
+    display: none; position: fixed; inset: 0; z-index: 40;
+    background: var(--bg); color: var(--text); flex-direction: column;
+  }
+  .reader.open { display: flex; }
+  .reader-bar {
+    flex: none; display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px; border-bottom: 1px solid var(--line); background: var(--panel);
+  }
+  .reader-id { flex: 1; min-width: 0; }
+  .reader-path {
+    font-family: var(--mono); font-size: 12px; color: var(--muted);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .reader-title { font-weight: 700; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .reader-actions { display: flex; gap: 8px; flex: none; align-items: center; }
+  .reader-actions .btn { text-decoration: none; }
+  #readerTocBtn { display: none; }
+  .reader-main { flex: 1; min-height: 0; display: flex; position: relative; }
+  .reader-toc {
+    width: 252px; flex: none; overflow: auto;
+    border-right: 1px solid var(--line); background: var(--panel); padding: 14px 10px 32px;
+  }
+  .reader-toc a {
+    display: block; color: var(--muted); text-decoration: none;
+    font-size: 13px; line-height: 1.45; padding: 6px 10px;
+    border-left: 2px solid transparent; border-radius: 0 8px 8px 0;
+  }
+  .reader-toc a.lv3 { padding-left: 22px; font-size: 12.5px; }
+  .reader-toc a:hover { background: var(--panel-2); color: var(--text); text-decoration: none; }
+  .reader-toc a.active { color: var(--brand); border-left-color: var(--brand); background: var(--brand-soft); font-weight: 600; }
+  .reader-toc-empty { margin: 8px 10px; color: var(--muted); font-size: 13px; }
+  .reader-scroll { flex: 1; min-width: 0; overflow: auto; overscroll-behavior: contain; }
+  .reader-article { max-width: 880px; margin: 0 auto; padding: 28px 36px 88px; font-size: 15.5px; line-height: 1.75; }
+  .reader-article h1 { font-size: 28px; line-height: 1.35; margin: 0 0 16px; letter-spacing: -.015em; }
+  .reader-article h2 { font-size: 20px; line-height: 1.4; margin: 34px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+  .reader-article h3 { font-size: 16.5px; margin: 24px 0 8px; }
+  .reader-article h4 { font-size: 15px; margin: 18px 0 8px; }
+  .reader-article p { margin: 0 0 12px; }
+  .reader-article hr { border: 0; border-top: 1px solid var(--line); margin: 26px 0; }
+  .reader-article ul, .reader-article ol { margin: 0 0 14px; padding-left: 1.35em; }
+  .reader-article li { margin: 5px 0; }
+  .reader-article li > ul, .reader-article li > ol { margin: 4px 0 2px; }
+  .reader-article a { font-weight: 600; }
+  .reader-article blockquote {
+    margin: 0 0 16px; padding: 12px 16px;
+    background: var(--brand-soft); border-left: 3px solid var(--brand); border-radius: 0 12px 12px 0;
+  }
+  .reader-article blockquote p { margin: 0 0 8px; }
+  .reader-article blockquote p:last-child { margin: 0; }
+  .reader-article th, .reader-article td { min-width: 8em; max-width: 34em; }
+  .reader-article th { white-space: normal; }
+  .reader-article th[align="right"], .reader-article td[align="right"] { text-align: right; font-variant-numeric: tabular-nums; }
+  .reader-article th[align="center"], .reader-article td[align="center"] { text-align: center; }
+  .reader-article input[type="checkbox"] { margin-right: 6px; accent-color: var(--brand); }
+  .md-table { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; margin: 0 0 16px; background: var(--panel); }
+  .md-table table { width: max-content; min-width: 100%; margin: 0; }
+  .md-codebox { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin: 0 0 16px; background: var(--panel-2); }
+  .md-code-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 10px 6px 14px; border-bottom: 1px solid var(--line);
+    color: var(--muted); font-family: var(--mono); font-size: 12px;
+  }
+  .md-copy {
+    border: 1px solid var(--line); background: var(--panel); color: var(--muted);
+    border-radius: 7px; padding: 2px 8px; font-size: 12px; cursor: pointer; font-family: inherit;
+  }
+  .md-copy:hover { color: var(--brand); border-color: var(--brand); }
+  .reader-article pre.md-code { margin: 0; background: transparent; }
+  .reader-article .md-codebox code.hljs {
+    display: block; overflow-x: auto; padding: 14px 16px; background: transparent;
+    font-family: var(--mono); font-size: 12.5px; line-height: 1.65; border-radius: 0;
+  }
+  .reader-article .mermaid {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px 12px; margin: 0 0 16px; overflow-x: auto;
+  }
+  .reader-article .mermaid:not(.is-drawn) {
+    white-space: pre-wrap; text-align: left; font-family: var(--mono); font-size: 12.5px; line-height: 1.55;
+  }
+  .reader-article .mermaid.is-drawn { text-align: left; }
+  .reader-article .mermaid.is-drawn svg { max-width: none !important; height: auto; }
+  .md-status { color: var(--muted); padding: 12px 0 24px; }
+  .md-status code { font-size: 12.5px; }
 
   footer { color: var(--muted); font-size: 12.5px; border-top: 1px solid var(--line); padding-top: 18px; }
 
@@ -312,6 +400,16 @@
   @media (max-width: 820px) {
     .sidebar { display: none; }
     main { margin-left: 0; padding: 18px; }
+    #readerTocBtn { display: inline-block; }
+    .reader-bar { padding: 10px 12px; gap: 8px; }
+    .reader-article { padding: 18px 16px 72px; }
+    .reader-title { font-size: 14px; }
+    .reader-toc {
+      position: absolute; z-index: 3; top: 0; bottom: 0; left: 0;
+      width: min(280px, 86vw); transform: translateX(-105%);
+      transition: transform .18s ease; box-shadow: var(--shadow);
+    }
+    .reader.toc-open .reader-toc { transform: translateX(0); }
     .g2, .g3, .g4 { grid-template-columns: minmax(0, 1fr); }
     .flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .big-res { grid-template-columns: 1fr; }
@@ -322,6 +420,10 @@
     .epic { grid-template-columns: 120px 1fr 60px; }
   }
   @media print {
+    body.reading .sidebar, body.reading main, body.reading .reader-bar, body.reading .reader-toc { display: none !important; }
+    body.reading .reader.open { display: block !important; position: static; height: auto; }
+    body.reading .reader-scroll { overflow: visible; }
+    body.reading .reader-article { max-width: none; padding: 0; }
     .sidebar, .side-foot, .no-print { display: none !important; }
     main { margin: 0; padding: 0; max-width: none; }
     body { background: #fff; font-size: 12px; }
@@ -907,14 +1009,14 @@
 <!-- ============ 10 文档 ============ -->
 <section id="docs">
   <div class="sec-head"><span class="tag">10</span><h2>规范文档导航</h2></div>
-  <p class="lead"><code>docs/</code> 五册是项目单一事实源；<code>geo-prd/</code> 仅作历史归档，表述冲突时以 <code>docs/</code> 为准。</p>
+  <p class="lead"><code>docs/</code> 五册是项目单一事实源；<code>geo-prd/</code> 仅作历史归档，表述冲突时以 <code>docs/</code> 为准。点击卡片在本页阅读全文，目录、表格、代码和流程图会按版式排好。</p>
   <div class="grid g3 docs-grid">
-    <a class="card" href="docs/01-项目立项与方案审查总览.md"><span class="dn">01</span><h3>项目立项与方案审查总览</h3><p>项目章程、原 17 份文档审查、6 大定制升级、业务闭环</p><span class="pill info">管理层 · 全员</span></a>
-    <a class="card" href="docs/02-产品需求文档-PRD.md"><span class="dn">02</span><h3>产品需求文档 PRD</h3><p>角色权限、6 大模块、40+10 题集、内容准则、metrics-v2、试点 SOP</p><span class="pill info">产品 · 设计 · 运营 · 交付</span></a>
-    <a class="card" href="docs/03-中国大陆GEO可行性调研报告.md"><span class="dn">03</span><h3>中国大陆 GEO 可行性调研</h3><p>引擎信源矩阵、采集路线评估、渠道接口边界、合规、单客户经济模型</p><span class="pill info">商业 · 产品 · 法务</span></a>
-    <a class="card" href="docs/04-技术架构与开发规格说明书-Spec.md"><span class="dn">04</span><h3>技术架构与开发 Spec</h3><p>架构拓扑、Monorepo、数据模型与 RLS、接口契约、状态机、安全测试</p><span class="pill info">研发 · 测试 · 运维</span></a>
-    <a class="card" href="docs/05-资源投入与里程碑排期计划.md"><span class="dn">05</span><h3>资源投入与里程碑排期</h3><p>10 周路线图、G0–G6 门禁、Epic 工时、双编制、预算与风险</p><span class="pill info">PMO · TL · 财务</span></a>
-    <a class="card" href="geo-prd/README.md"><span class="dn">归档</span><h3>geo-prd 历史资料</h3><p>v1.0–v1.2 调研记录、初稿、修改建议与阶段细则，仅供溯源</p><span class="pill warn">只读参考</span></a>
+    <a class="card" href="#doc=docs%2F01-%E9%A1%B9%E7%9B%AE%E7%AB%8B%E9%A1%B9%E4%B8%8E%E6%96%B9%E6%A1%88%E5%AE%A1%E6%9F%A5%E6%80%BB%E8%A7%88.md"><span class="dn">01</span><h3>项目立项与方案审查总览</h3><p>项目章程、原 17 份文档审查、6 大定制升级、业务闭环</p><span class="pill info">管理层 · 全员</span></a>
+    <a class="card" href="#doc=docs%2F02-%E4%BA%A7%E5%93%81%E9%9C%80%E6%B1%82%E6%96%87%E6%A1%A3-PRD.md"><span class="dn">02</span><h3>产品需求文档 PRD</h3><p>角色权限、6 大模块、40+10 题集、内容准则、metrics-v2、试点 SOP</p><span class="pill info">产品 · 设计 · 运营 · 交付</span></a>
+    <a class="card" href="#doc=docs%2F03-%E4%B8%AD%E5%9B%BD%E5%A4%A7%E9%99%86GEO%E5%8F%AF%E8%A1%8C%E6%80%A7%E8%B0%83%E7%A0%94%E6%8A%A5%E5%91%8A.md"><span class="dn">03</span><h3>中国大陆 GEO 可行性调研</h3><p>引擎信源矩阵、采集路线评估、渠道接口边界、合规、单客户经济模型</p><span class="pill info">商业 · 产品 · 法务</span></a>
+    <a class="card" href="#doc=docs%2F04-%E6%8A%80%E6%9C%AF%E6%9E%B6%E6%9E%84%E4%B8%8E%E5%BC%80%E5%8F%91%E8%A7%84%E6%A0%BC%E8%AF%B4%E6%98%8E%E4%B9%A6-Spec.md"><span class="dn">04</span><h3>技术架构与开发 Spec</h3><p>架构拓扑、Monorepo、数据模型与 RLS、接口契约、状态机、安全测试</p><span class="pill info">研发 · 测试 · 运维</span></a>
+    <a class="card" href="#doc=docs%2F05-%E8%B5%84%E6%BA%90%E6%8A%95%E5%85%A5%E4%B8%8E%E9%87%8C%E7%A8%8B%E7%A2%91%E6%8E%92%E6%9C%9F%E8%AE%A1%E5%88%92.md"><span class="dn">05</span><h3>资源投入与里程碑排期</h3><p>10 周路线图、G0–G6 门禁、Epic 工时、双编制、预算与风险</p><span class="pill info">PMO · TL · 财务</span></a>
+    <a class="card" href="#doc=geo-prd%2FREADME.md"><span class="dn">归档</span><h3>geo-prd 历史资料</h3><p>v1.0–v1.2 调研记录、初稿、修改建议与阶段细则，仅供溯源</p><span class="pill warn">只读参考</span></a>
   </div>
 </section>
 
@@ -924,6 +1026,27 @@
 </footer>
 
 </main>
+
+<div id="reader" class="reader" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="readerTitle">
+  <header class="reader-bar">
+    <button class="btn" id="readerClose" type="button">返回报告</button>
+    <div class="reader-id">
+      <div class="reader-path" id="readerPath"></div>
+      <div class="reader-title" id="readerTitle">文档</div>
+    </div>
+    <div class="reader-actions">
+      <button class="btn" id="readerTocBtn" type="button">目录</button>
+      <a class="btn" id="readerRaw" href="#" target="_blank" rel="noopener">源文件</a>
+      <button class="btn" id="readerTheme" type="button">深色模式</button>
+    </div>
+  </header>
+  <div class="reader-main">
+    <nav class="reader-toc" id="readerToc" aria-label="文档目录"></nav>
+    <div class="reader-scroll" id="readerScroll">
+      <article class="reader-article" id="readerArticle"></article>
+    </div>
+  </div>
+</div>
 
 <script>
 (function () {
@@ -1126,5 +1249,6 @@
   calc();
 })();
 </script>
+<script src="reader.js"></script>
 </body>
 </html>
