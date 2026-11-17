@@ -1,0 +1,940 @@
+{
+  "version": "3.0",
+  "date": "2026-11-17",
+  "current_level": "M0",
+  "features": [
+    {
+      "level": "M0",
+      "requirement": "R-M0-01",
+      "title": "自助入口、品牌建档与资源归属",
+      "intent": "降低首次启动门槛，让小 B 经营者直接开始",
+      "spec": "S-M0-01",
+      "spec_file": "specs/M0.md",
+      "task": "T-M0-01",
+      "task_file": "tasks/M0.md",
+      "dependencies": [],
+      "acceptance": [
+        {
+          "id": "AC-M0-01-1",
+          "given": "未填官网且竞品为空",
+          "when": "填品牌、业务和地区并完成引导",
+          "then": "品牌可保存，官网引用为不适用，不伪造官网"
+        },
+        {
+          "id": "AC-M0-01-2",
+          "given": "另一个用户持有品牌/证据/导出标识",
+          "when": "访问或修改这些资源",
+          "then": "拒绝且不泄漏内容；下载也受相同限制"
+        },
+        {
+          "id": "AC-M0-01-3",
+          "given": "品牌已存在历史样本",
+          "when": "修改别名和退出再进入引导",
+          "then": "新实体版本生效，旧报告仍引用旧版；草稿恢复"
+        }
+      ]
+    },
+    {
+      "level": "M0",
+      "requirement": "R-M0-02",
+      "title": "轻量品牌事实与补证",
+      "intent": "先确认事实，再产出可公开内容",
+      "spec": "S-M0-02",
+      "spec_file": "specs/M0.md",
+      "task": "T-M0-02",
+      "task_file": "tasks/M0.md",
+      "dependencies": [
+        "T-M0-01"
+      ],
+      "acceptance": [
+        {
+          "id": "AC-M0-02-1",
+          "given": "粘贴的资料包含无来源参数",
+          "when": "请求确认该参数",
+          "then": "阻止批准并给补证动作，原文仍可保存"
+        },
+        {
+          "id": "AC-M0-02-2",
+          "given": "有已批准可公开事实和内部附件",
+          "when": "生成内容后撤销该事实",
+          "then": "未交付稿件标失效，受影响版本列出；原附件不进入公开包"
+        },
+        {
+          "id": "AC-M0-02-3",
+          "given": "已批准一版价格",
+          "when": "录入不同的新价格",
+          "then": "创建待确认版本并提示冲突，不覆盖旧报告和旧审批"
+        }
+      ]
+    },
+    {
+      "level": "M0",
+      "requirement": "R-M0-03",
+      "title": "购买问题簇与题集预览",
+      "intent": "用客户真实问题组织监测和内容",
+      "spec": "S-M0-03",
+      "spec_file": "specs/M0.md",
+      "task": "T-M0-03",
+      "task_file": "tasks/M0.md",
+      "dependencies": [
+        "T-M0-01"
+      ],
+      "acceptance": [
+        {
+          "id": "AC-M0-03-1",
+          "given": "有 3 个非品牌问题和 1 个带品牌比较题",
+          "when": "预览并启动",
+          "then": "共 4 题保存，主指标仅用 3 个非品牌题"
+        },
+        {
+          "id": "AC-M0-03-2",
+          "given": "输入重复空白变体和语义近似题",
+          "when": "确认候选",
+          "then": "完全重复被拦，近似题可人工保留且显示提醒"
+        },
+        {
+          "id": "AC-M0-03-3",
+          "given": "已有一个冻结题集",
+          "when": "编辑其中一题再复测",
+          "then": "产生新版本，可比性明确排除变更题，不覆盖旧问题"
+        }
+      ]
+    },
+    {
+      "level": "M0",
+      "requirement": "R-M0-04",
+      "title": "真实通道能力台账与双轨采样范围",
+      "intent": "明确数据来自什么对象，防止 API 冒充消费者产品",
+      "spec": "S-M0-04",
+      "spec_file": "specs/M0.md",
+      "task": "T-M0-04",
+      "task_file": "tasks/M0.md",
+      "dependencies": [
+        "T-M0-01"
+      ],
+      "acceptance": [
+        {
+          "id": "AC-M0-04-1",
+          "given": "API 与消费者入口名称属于同一厂商",
+          "when": "查看选择器和报告",
+          "then": "显示两种独立来源，不能合成一个品牌推荐率"
+        },
+        {
+          "id": "AC-M0-04-2",
+          "given": "渠道未验证或已过期",
+          "when": "请求新运行",
+          "then": "阻止正式执行并说明原因，不能返回模拟成功"
+        },
+        {
+          "id": "AC-M0-04-3",
+          "given": "接口配置了联网但无触发证据",
+          "when": "保存回答",
+          "then": "实际联网为 unknown，不能进入 required 联网合格分母"
+        }
+      ]
+    },
+    {
+      "level": "M0",
+      "requirement": "R-M0-05",
+      "title": "监测运行、进度与预算",
+      "intent": "让用户知道测了什么、成功多少、消耗多少",
+      "spec": "S-M0-05",
+      "spec_file": "specs/M0.md",
+      "task": "T-M0-05",
+      "task_file": "tasks/M0.md",
+      "dependencies": [
+        "T-M0-03",
+        "T-M0-04"
+      ],
+      "acceptance": [
+        {
+          "id": "AC-M0-05-1",
+          "given": "同一请求连续提交 3 次",
+          "when": "查看任务与额度",
+          "then": "只有一个运行和一组槽位，同输入返回原结果；换输入不能静默复用"
+        },
+        {
+          "id": "AC-M0-05-2",
+          "given": "4 槽位中 1 个超时且费用未知",
+          "when": "运行结束",
+          "then": "显示 3 个结果和 1 个待核对，P 仍为 4；不立即重复远端请求"
+        },
+        {
+          "id": "AC-M0-05-3",
+          "given": "预算只够 1 个单元",
+          "when": "同时启动两个单元",
+          "then": "仅一个执行，另一个暂停；分析重试不新增采样费用"
+        }
+      ]
+    },
+    {
+      "level": "M0",
+      "requirement": "R-M0-06",
+      "title": "回答证据、人工存证与独立判定",
+      "intent": "每一个结果都能看原文和纠正误判",
+      "spec": "S-M0-06",
+      "spec_file": "specs/M0.md",
+      "task": "T-M0-06",
+      "task_file": "tasks/M0.md",
+      "dependencies": [
+        "T-M0-02",
+        "T-M0-05"
+      ],
+      "acceptance": [
+        {
+          "id": "AC-M0-06-1",
+          "given": "回答说“甲可考虑；乙不适合本需求”，并引用乙官网",
+          "when": "分析乙",
+          "then": "提及=true、推荐=false、官网引用=true，三个结果独立"
+        },
+        {
+          "id": "AC-M0-06-2",
+          "given": "一个完整空引用和一个缺引用字段回答",
+          "when": "统计引用",
+          "then": "前者进 C 且未引用，后者不进 C 且显示未知/不支持"
+        },
+        {
+          "id": "AC-M0-06-3",
+          "given": "用户纠正同名误判",
+          "when": "保存分析修订",
+          "then": "原文不变，新 analysis_version 可见，既有报告仍引用旧版本"
+        }
+      ]
+    },
+    {
+      "level": "M0",
+      "requirement": "R-M0-07",
+      "title": "可解释概览与证据下钻",
+      "intent": "普通用户理解结果和限制，找到下一步",
+      "spec": "S-M0-07",
+      "spec_file": "specs/M0.md",
+      "task": "T-M0-07",
+      "task_file": "tasks/M0.md",
+      "dependencies": [
+        "T-M0-06"
+      ],
+      "acceptance": [
+        {
+          "id": "AC-M0-07-1",
+          "given": "无有效样本",
+          "when": "打开总览",
+          "then": "显示 N/A 和启动/补采动作，不出现伪造分数或增长"
+        },
+        {
+          "id": "AC-M0-07-2",
+          "given": "两题推荐为 1/2 与 3/3",
+          "when": "查看概览并下钻",
+          "then": "题均值 75%，池化明细 4/5=80% 单独标明；可定位 5 条样本"
+        },
+        {
+          "id": "AC-M0-07-3",
+          "given": "切换消费者端/时间范围",
+          "when": "看 KPI、趋势和列表",
+          "then": "范围全部一致，API 数据不混入；窄屏及键盘仍可操作"
+        }
+      ]
+    },
+    {
+      "level": "M0",
+      "requirement": "R-M0-08",
+      "title": "证据诊断、页面检查与行动任务",
+      "intent": "把观察缺口转成能完成的少量动作",
+      "spec": "S-M0-08",
+      "spec_file": "specs/M0.md",
+      "task": "T-M0-08",
+      "task_file": "tasks/M0.md",
+      "dependencies": [
+        "T-M0-02",
+        "T-M0-07"
+      ],
+      "acceptance": [
+        {
+          "id": "AC-M0-08-1",
+          "given": "唯一证据是一个回答未提品牌",
+          "when": "生成建议",
+          "then": "说明缺席观察与待验证假设，不声称模型因软文而淘汰品牌"
+        },
+        {
+          "id": "AC-M0-08-2",
+          "given": "两次分析发现同一页同一缺口",
+          "when": "生成行动",
+          "then": "合并到同一未关闭任务并追加证据，不重复计任务成果"
+        },
+        {
+          "id": "AC-M0-08-3",
+          "given": "页面不可访问或含执行指令",
+          "when": "检查页面",
+          "then": "显示受限/待核验，不执行文本指令，也不宣称引擎无法收录"
+        }
+      ]
+    },
+    {
+      "level": "M0",
+      "requirement": "R-M0-09",
+      "title": "问题驱动内容计划与小批次草稿",
+      "intent": "吸收 GeoMix 的生产效率，让每篇稿件有依据和用途",
+      "spec": "S-M0-09",
+      "spec_file": "specs/M0.md",
+      "task": "T-M0-09",
+      "task_file": "tasks/M0.md",
+      "dependencies": [
+        "T-M0-08"
+      ],
+      "acceptance": [
+        {
+          "id": "AC-M0-09-1",
+          "given": "Brief 缺来源或适用边界",
+          "when": "请求生成",
+          "then": "拦截并转补证，不能生成完整营销断言"
+        },
+        {
+          "id": "AC-M0-09-2",
+          "given": "3 份 Brief 中 2 成功 1 失败",
+          "when": "只重试失败项",
+          "then": "成功版本不变，批次保留原记录，仅失败项新增尝试"
+        },
+        {
+          "id": "AC-M0-09-3",
+          "given": "已确认 Brief 的事实被撤销",
+          "when": "继续暂停的批次",
+          "then": "受影响单元阻塞，其他单元可继续，生成物不能自动成为已批准"
+        }
+      ]
+    },
+    {
+      "level": "M0",
+      "requirement": "R-M0-10",
+      "title": "逐稿审核、素材与交付包",
+      "intent": "可交付内容必须可追溯且适合目标渠道",
+      "spec": "S-M0-10",
+      "spec_file": "specs/M0.md",
+      "task": "T-M0-10",
+      "task_file": "tasks/M0.md",
+      "dependencies": [
+        "T-M0-09"
+      ],
+      "acceptance": [
+        {
+          "id": "AC-M0-10-1",
+          "given": "已批准内容改变一个标题字或图片",
+          "when": "再次导出",
+          "then": "旧批准失效，新版本须重审；旧文件和旧审批仍可追溯"
+        },
+        {
+          "id": "AC-M0-10-2",
+          "given": "包含内部资料附件和公开事实摘录",
+          "when": "导出正式素材包",
+          "then": "仅输出允许公开的内容及来源说明，无内部附件与凭证"
+        },
+        {
+          "id": "AC-M0-10-3",
+          "given": "批选 3 稿但 1 稿事实过期",
+          "when": "导出",
+          "then": "显示阻塞项并要求明确选择合格子集，成功数为 2 而非 3"
+        }
+      ]
+    },
+    {
+      "level": "M0",
+      "requirement": "R-M0-11",
+      "title": "人工发布回填与公开核验",
+      "intent": "区分导出、提交和实际对公众生效",
+      "spec": "S-M0-11",
+      "spec_file": "specs/M0.md",
+      "task": "T-M0-11",
+      "task_file": "tasks/M0.md",
+      "dependencies": [
+        "T-M0-10"
+      ],
+      "acceptance": [
+        {
+          "id": "AC-M0-11-1",
+          "given": "回填公众号草稿或登录页",
+          "when": "核验",
+          "then": "显示草稿/受限，无 effective_at，不计公开核验通过"
+        },
+        {
+          "id": "AC-M0-11-2",
+          "given": "页面公开且关键事实一致",
+          "when": "核验通过",
+          "then": "保存核验时间为 effective_at，关联准确内容和审批版本"
+        },
+        {
+          "id": "AC-M0-11-3",
+          "given": "用户手工提供受限页面的完整证据",
+          "when": "确认核验",
+          "then": "记录 verified_manual 和人工证据等级，不冒充匿名公开访问成功"
+        }
+      ]
+    },
+    {
+      "level": "M0",
+      "requirement": "R-M0-12",
+      "title": "同口径复测与报告快照",
+      "intent": "验证执行后的变化，并诚实说明能比较到什么程度",
+      "spec": "S-M0-12",
+      "spec_file": "specs/M0.md",
+      "task": "T-M0-12",
+      "task_file": "tasks/M0.md",
+      "dependencies": [
+        "T-M0-07",
+        "T-M0-11"
+      ],
+      "acceptance": [
+        {
+          "id": "AC-M0-12-1",
+          "given": "前后有 3 个共同题和 1 个修改题",
+          "when": "请求对比",
+          "then": "只以 3 个共同题重算双方并标探索，列出排除题和覆盖"
+        },
+        {
+          "id": "AC-M0-12-2",
+          "given": "用户完成改稿但尚未公开核验",
+          "when": "请求经营闭环报告",
+          "then": "允许诊断复跑，不能声称公开干预已生效或闭环完成"
+        },
+        {
+          "id": "AC-M0-12-3",
+          "given": "报告已生成后纠正标签",
+          "when": "重新出报告",
+          "then": "旧文件与计算结果保持不变，新快照关联前版且分子分母可复算"
+        }
+      ]
+    },
+    {
+      "level": "M1",
+      "requirement": "R-M1-01",
+      "title": "持续监测与质量异常提醒",
+      "intent": "让品牌每周知道哪里发生了值得处理的变化",
+      "spec": "S-M1-01",
+      "spec_file": "specs/M1.md",
+      "task": "T-M1-01",
+      "task_file": "tasks/M1.md",
+      "dependencies": [
+        "T-M0-12",
+        "T-M0-GATE"
+      ],
+      "acceptance": [
+        {
+          "id": "AC-M1-01-1",
+          "given": "计划日采中出现预算不足",
+          "when": "到达下一时段",
+          "then": "暂停未执行单元并提醒，过去失败槽位仍在覆盖分母"
+        },
+        {
+          "id": "AC-M1-01-2",
+          "given": "推荐率下降但覆盖严重不足",
+          "when": "生成提醒",
+          "then": "优先提示数据质量，不能宣称品牌表现确定下滑"
+        },
+        {
+          "id": "AC-M1-01-3",
+          "given": "相同窗口重复触发告警",
+          "when": "查看站内通知",
+          "then": "合并一条并保留发生记录，可确认或稍后处理"
+        }
+      ]
+    },
+    {
+      "level": "M1",
+      "requirement": "R-M1-02",
+      "title": "竞品与引用来源机会分析",
+      "intent": "识别竞争缺口，决定下一份内容应解决什么",
+      "spec": "S-M1-02",
+      "spec_file": "specs/M1.md",
+      "task": "T-M1-02",
+      "task_file": "tasks/M1.md",
+      "dependencies": [
+        "T-M0-08",
+        "T-M0-GATE"
+      ],
+      "acceptance": [
+        {
+          "id": "AC-M1-02-1",
+          "given": "同一回答反复提甲且同时提乙",
+          "when": "计算份额",
+          "then": "每品牌每回答最多计一次，固定竞品集和分母可见"
+        },
+        {
+          "id": "AC-M1-02-2",
+          "given": "引用页受限",
+          "when": "查看第三方支持",
+          "then": "引用存在仍可展示，支持性为 unknown 而非正向"
+        },
+        {
+          "id": "AC-M1-02-3",
+          "given": "AI 无序列出品牌",
+          "when": "查看竞品面板",
+          "then": "不生成虚假排名；机会 Brief 保留来源且不复制品牌替换文案"
+        }
+      ]
+    },
+    {
+      "level": "M1",
+      "requirement": "R-M1-03",
+      "title": "品牌实体准确性与事实纠错",
+      "intent": "管理同名、产品线混淆和过时品牌描述",
+      "spec": "S-M1-03",
+      "spec_file": "specs/M1.md",
+      "task": "T-M1-03",
+      "task_file": "tasks/M1.md",
+      "dependencies": [
+        "T-M0-12",
+        "T-M0-GATE"
+      ],
+      "acceptance": [
+        {
+          "id": "AC-M1-03-1",
+          "given": "回答使用与品牌同名的另一公司",
+          "when": "人工确认实体混淆",
+          "then": "保留证据并生成消歧修订，不算目标品牌自然提及"
+        },
+        {
+          "id": "AC-M1-03-2",
+          "given": "只复核了 10/50 条且 2 条确认错误",
+          "when": "查看事实错误率",
+          "then": "显示 2/10 和复核覆盖 10/50，不写全体错误率 4%"
+        },
+        {
+          "id": "AC-M1-03-3",
+          "given": "官网已更正但复测仍错误",
+          "when": "查看纠错状态",
+          "then": "动作已完成、效果未解决分别显示"
+        }
+      ]
+    },
+    {
+      "level": "M1",
+      "requirement": "R-M1-04",
+      "title": "资料、素材与模板资产复用",
+      "intent": "减少重复输入，让团队基于同一事实创作",
+      "spec": "S-M1-04",
+      "spec_file": "specs/M1.md",
+      "task": "T-M1-04",
+      "task_file": "tasks/M1.md",
+      "dependencies": [
+        "T-M0-10",
+        "T-M0-GATE"
+      ],
+      "acceptance": [
+        {
+          "id": "AC-M1-04-1",
+          "given": "文档有部分不可识别页面",
+          "when": "导入",
+          "then": "可识别部分保留，缺失标记并提示人工处理，不假造页码"
+        },
+        {
+          "id": "AC-M1-04-2",
+          "given": "图片使用权被撤销",
+          "when": "检查内容关联",
+          "then": "列出引用版本和维护待办，历史记录仍在"
+        },
+        {
+          "id": "AC-M1-04-3",
+          "given": "自定义模板要求编造客户案例",
+          "when": "尝试生成和导出",
+          "then": "不能绕过事实与审批门禁"
+        }
+      ]
+    },
+    {
+      "level": "M1",
+      "requirement": "R-M1-05",
+      "title": "多渠道变体与内容维护",
+      "intent": "按渠道交付同一可信事实，并持续修复过时内容",
+      "spec": "S-M1-05",
+      "spec_file": "specs/M1.md",
+      "task": "T-M1-05",
+      "task_file": "tasks/M1.md",
+      "dependencies": [
+        "T-M1-04",
+        "T-M0-11",
+        "T-M0-GATE"
+      ],
+      "acceptance": [
+        {
+          "id": "AC-M1-05-1",
+          "given": "主稿已审，知乎变体改了价格",
+          "when": "导出变体",
+          "then": "独立重审，不能继承主稿批准"
+        },
+        {
+          "id": "AC-M1-05-2",
+          "given": "同一价格事实关联 5 个线上页",
+          "when": "事实到期",
+          "then": "列出 5 页受影响，生成去重维护任务"
+        },
+        {
+          "id": "AC-M1-05-3",
+          "given": "3 个渠道中 1 个发布受限",
+          "when": "看内容日历",
+          "then": "2 个核验结果保留，受限渠道独立标阻塞"
+        }
+      ]
+    },
+    {
+      "level": "M1",
+      "requirement": "R-M1-06",
+      "title": "专业题集、基线与正式阶段复测",
+      "intent": "从快测升级为可审查的持续效果评估",
+      "spec": "S-M1-06",
+      "spec_file": "specs/M1.md",
+      "task": "T-M1-06",
+      "task_file": "tasks/M1.md",
+      "dependencies": [
+        "T-M1-01",
+        "T-M0-12",
+        "T-M0-GATE"
+      ],
+      "acceptance": [
+        {
+          "id": "AC-M1-06-1",
+          "given": "D+14 尚未到期",
+          "when": "生成 D+14 正式报告",
+          "then": "只给进度，不产完整观察结论"
+        },
+        {
+          "id": "AC-M1-06-2",
+          "given": "30 题仅 23 题可比",
+          "when": "执行正式对比",
+          "then": "低于 80% 门槛，标探索并列 7 题排除原因"
+        },
+        {
+          "id": "AC-M1-06-3",
+          "given": "批次 3 页分别不同时间核验",
+          "when": "计算生效点",
+          "then": "使用最后一页核验时间，未核验则批次未生效"
+        }
+      ]
+    },
+    {
+      "level": "M1",
+      "requirement": "R-M1-07",
+      "title": "业务反馈与可观察线索",
+      "intent": "把 AI 关联咨询带回优化决策",
+      "spec": "S-M1-07",
+      "spec_file": "specs/M1.md",
+      "task": "T-M1-07",
+      "task_file": "tasks/M1.md",
+      "dependencies": [
+        "T-M0-12",
+        "T-M0-GATE"
+      ],
+      "acceptance": [
+        {
+          "id": "AC-M1-07-1",
+          "given": "同一咨询既有引荐又有自报",
+          "when": "导入两行相同事件 ID",
+          "then": "咨询计 1，两个证据保留，主分类为可识别引荐"
+        },
+        {
+          "id": "AC-M1-07-2",
+          "given": "没有可靠会话分母",
+          "when": "查看转化",
+          "then": "显示计数和 N/A 转化率，不造分母"
+        },
+        {
+          "id": "AC-M1-07-3",
+          "given": "页面有爬虫访问但没有 AI 回答引用",
+          "when": "查看报告",
+          "then": "仅展示访问观察，不称被 AI 收录或推荐"
+        }
+      ]
+    },
+    {
+      "level": "M1",
+      "requirement": "R-M1-08",
+      "title": "团队品牌权限与职责分离",
+      "intent": "让运营、审核与负责人协作而不越权",
+      "spec": "S-M1-08",
+      "spec_file": "specs/M1.md",
+      "task": "T-M1-08",
+      "task_file": "tasks/M1.md",
+      "dependencies": [
+        "T-M0-12",
+        "T-M0-GATE"
+      ],
+      "acceptance": [
+        {
+          "id": "AC-M1-08-1",
+          "given": "运营作者提交自己稿件且启用双人审核",
+          "when": "尝试批准",
+          "then": "拒绝，审核者可审，系统记录职责分离"
+        },
+        {
+          "id": "AC-M1-08-2",
+          "given": "已排队任务的授权被撤销",
+          "when": "任务执行/下载",
+          "then": "重新校验并停止未执行动作，附件不可继续获取"
+        },
+        {
+          "id": "AC-M1-08-3",
+          "given": "成员只获品牌 A 权限",
+          "when": "切换到品牌 B 或批量导出",
+          "then": "拒绝且无品牌 B 数据泄露"
+        }
+      ]
+    },
+    {
+      "level": "M2",
+      "requirement": "R-M2-01",
+      "title": "消费者入口辅助采集",
+      "intent": "减少人工存证耗时，同时保留真实采样条件",
+      "spec": "S-M2-01",
+      "spec_file": "specs/M2.md",
+      "task": "T-M2-01",
+      "task_file": "tasks/M2.md",
+      "dependencies": [
+        "T-M1-01",
+        "T-M1-08",
+        "T-M1-GATE"
+      ],
+      "acceptance": [
+        {
+          "id": "AC-M2-01-1",
+          "given": "遇到验证码或登录墙",
+          "when": "执行辅助采集",
+          "then": "停止自动步骤并提示用户正常处理，不绕过"
+        },
+        {
+          "id": "AC-M2-01-2",
+          "given": "原文提取缺引用",
+          "when": "预览存证",
+          "then": "显示 partial，人工可补齐，不能静默当完整空引用"
+        },
+        {
+          "id": "AC-M2-01-3",
+          "given": "入口结构变化",
+          "when": "继续采集",
+          "then": "自动能力降级，原题单与人工存证仍可用"
+        }
+      ]
+    },
+    {
+      "level": "M2",
+      "requirement": "R-M2-02",
+      "title": "授权草稿、发布及通知连接",
+      "intent": "把已验证的重复外部操作变得可控",
+      "spec": "S-M2-02",
+      "spec_file": "specs/M2.md",
+      "task": "T-M2-02",
+      "task_file": "tasks/M2.md",
+      "dependencies": [
+        "T-M1-05",
+        "T-M1-08",
+        "T-M1-GATE"
+      ],
+      "acceptance": [
+        {
+          "id": "AC-M2-02-1",
+          "given": "只授权草稿权限",
+          "when": "请求公开发布",
+          "then": "拒绝且给出人工后续，草稿成功不算公开"
+        },
+        {
+          "id": "AC-M2-02-2",
+          "given": "请求已受理但本地超时",
+          "when": "重试相同动作",
+          "then": "先查单或待核对，不重复远端发布"
+        },
+        {
+          "id": "AC-M2-02-3",
+          "given": "通知授权撤销",
+          "when": "发送下一条提醒",
+          "then": "停止发送，历史发送记录不被删除"
+        }
+      ]
+    },
+    {
+      "level": "M2",
+      "requirement": "R-M2-03",
+      "title": "代理商交付与商业权益",
+      "intent": "多客户经营可隔离、可签收、可解释消耗",
+      "spec": "S-M2-03",
+      "spec_file": "specs/M2.md",
+      "task": "T-M2-03",
+      "task_file": "tasks/M2.md",
+      "dependencies": [
+        "T-M1-07",
+        "T-M1-08",
+        "T-M1-GATE"
+      ],
+      "acceptance": [
+        {
+          "id": "AC-M2-03-1",
+          "given": "代理成员有效但品牌委托到期",
+          "when": "访问品牌或执行排队动作",
+          "then": "拒绝，不能靠代理组织身份越过委托"
+        },
+        {
+          "id": "AC-M2-03-2",
+          "given": "客户下载白标报告",
+          "when": "查看来源与限制",
+          "then": "保留轨道、样本量和结论等级，不能改成效果保证"
+        },
+        {
+          "id": "AC-M2-03-3",
+          "given": "无支付连接仅记录报价",
+          "when": "提交订单",
+          "then": "保持待支付/登记状态，不显示实际收款成功"
+        }
+      ]
+    },
+    {
+      "level": "M2",
+      "requirement": "R-M2-04",
+      "title": "站点与业务数据持续连接",
+      "intent": "减少重复导入，让观测与业务反馈持续可用",
+      "spec": "S-M2-04",
+      "spec_file": "specs/M2.md",
+      "task": "T-M2-04",
+      "task_file": "tasks/M2.md",
+      "dependencies": [
+        "T-M1-07",
+        "T-M1-08",
+        "T-M1-GATE"
+      ],
+      "acceptance": [
+        {
+          "id": "AC-M2-04-1",
+          "given": "相同事件从 CSV 与连接器进入",
+          "when": "同步",
+          "then": "按明确事件键去重，并保留两个来源"
+        },
+        {
+          "id": "AC-M2-04-2",
+          "given": "仅有 user-agent 声称 AI 爬虫",
+          "when": "生成报告",
+          "then": "标未核验身份，不称确定被某 AI 收录"
+        },
+        {
+          "id": "AC-M2-04-3",
+          "given": "撤销数据授权",
+          "when": "下一轮同步",
+          "then": "停止拉取，历史数据按保留策略可管理"
+        }
+      ]
+    },
+    {
+      "level": "M2",
+      "requirement": "R-M2-05",
+      "title": "受控经营助理与策略复用",
+      "intent": "让运营把时间用在判断和审核，而非重复整理",
+      "spec": "S-M2-05",
+      "spec_file": "specs/M2.md",
+      "task": "T-M2-05",
+      "task_file": "tasks/M2.md",
+      "dependencies": [
+        "T-M1-06",
+        "T-M1-08",
+        "T-M1-GATE"
+      ],
+      "acceptance": [
+        {
+          "id": "AC-M2-05-1",
+          "given": "采集文本要求忽略预算并公开发文",
+          "when": "助理生成计划",
+          "then": "仅作为材料，不能触发动作或改变授权"
+        },
+        {
+          "id": "AC-M2-05-2",
+          "given": "用户确认 3 项后事实到期",
+          "when": "执行任务",
+          "then": "相关项阻塞，其余按原授权执行，不自动扩范围"
+        },
+        {
+          "id": "AC-M2-05-3",
+          "given": "历史只有一次成功观察",
+          "when": "保存策略模板",
+          "then": "标观察案例和条件，不标可保证收益"
+        }
+      ]
+    },
+    {
+      "level": "M2",
+      "requirement": "R-M2-06",
+      "title": "行业、本地场景与多模态内容扩展",
+      "intent": "在有真实需求时扩展大陆长尾经营场景",
+      "spec": "S-M2-06",
+      "spec_file": "specs/M2.md",
+      "task": "T-M2-06",
+      "task_file": "tasks/M2.md",
+      "dependencies": [
+        "T-M1-03",
+        "T-M1-05",
+        "T-M1-GATE"
+      ],
+      "acceptance": [
+        {
+          "id": "AC-M2-06-1",
+          "given": "目标城市为杭州但采集位置未知",
+          "when": "看本地报告",
+          "then": "明确显示目标杭州/实际未知，不声称杭州用户真实排名"
+        },
+        {
+          "id": "AC-M2-06-2",
+          "given": "插图生成错误价格",
+          "when": "审核",
+          "then": "阻止公开交付并指向对应事实版本"
+        },
+        {
+          "id": "AC-M2-06-3",
+          "given": "同品牌两个门店服务范围不同",
+          "when": "生成回答核对与内容",
+          "then": "分别使用门店事实，不能跨店混用"
+        }
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "task": "T-M0-GATE",
+      "level": "M0",
+      "dependencies": [
+        "T-M0-01",
+        "T-M0-02",
+        "T-M0-03",
+        "T-M0-04",
+        "T-M0-05",
+        "T-M0-06",
+        "T-M0-07",
+        "T-M0-08",
+        "T-M0-09",
+        "T-M0-10",
+        "T-M0-11",
+        "T-M0-12"
+      ],
+      "acceptance": "AC-M0-GATE"
+    },
+    {
+      "task": "T-M1-GATE",
+      "level": "M1",
+      "dependencies": [
+        "T-M1-01",
+        "T-M1-02",
+        "T-M1-03",
+        "T-M1-04",
+        "T-M1-05",
+        "T-M1-06",
+        "T-M1-07",
+        "T-M1-08",
+        "T-M0-GATE"
+      ],
+      "acceptance": "AC-M1-GATE"
+    },
+    {
+      "task": "T-M2-GATE",
+      "level": "M2",
+      "dependencies": [
+        "T-M2-01",
+        "T-M2-02",
+        "T-M2-03",
+        "T-M2-04",
+        "T-M2-05",
+        "T-M2-06",
+        "T-M1-GATE"
+      ],
+      "acceptance": "AC-M2-GATE"
+    }
+  ]
+}

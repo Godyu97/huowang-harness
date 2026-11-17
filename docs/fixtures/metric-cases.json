@@ -1,0 +1,219 @@
+{
+  "version": "metrics-v3",
+  "is_demo": true,
+  "cases": [
+    {
+      "id": "quality-and-unknown",
+      "p": 10,
+      "v": 8,
+      "e": 7,
+      "jr": 6,
+      "recommended": 3,
+      "c": 5,
+      "jc": 5,
+      "cited": 2,
+      "expected": {
+        "valid_coverage": 0.8,
+        "eligible_coverage": 0.7,
+        "recommendation_rate": 0.5,
+        "recommendation_unknown": 0.14285714285714285,
+        "citation_coverage": 0.7142857142857143,
+        "official_citation_rate": 0.4
+      }
+    },
+    {
+      "id": "unknown-ownership",
+      "p": 10,
+      "v": 8,
+      "e": 7,
+      "jr": 6,
+      "recommended": 3,
+      "c": 5,
+      "jc": 4,
+      "cited": 2,
+      "expected": {
+        "official_citation_rate": 0.5,
+        "ownership_judgable": 0.8
+      }
+    },
+    {
+      "id": "unsupported-citations",
+      "p": 3,
+      "v": 3,
+      "e": 3,
+      "jr": 3,
+      "recommended": 0,
+      "c": 0,
+      "jc": 0,
+      "cited": 0,
+      "expected": {
+        "official_citation_rate": null,
+        "recommendation_rate": 0
+      }
+    },
+    {
+      "id": "question-equal-weight",
+      "questions": [
+        {
+          "id": "q1",
+          "numerator": 1,
+          "denominator": 2
+        },
+        {
+          "id": "q2",
+          "numerator": 3,
+          "denominator": 3
+        }
+      ],
+      "expected": {
+        "question_mean": 0.75,
+        "pooled": 0.8
+      }
+    },
+    {
+      "id": "common-query-comparison",
+      "before": [
+        {
+          "id": "q1",
+          "version": "v1",
+          "numerator": 1,
+          "denominator": 5
+        },
+        {
+          "id": "q2",
+          "version": "v1",
+          "numerator": 1,
+          "denominator": 5
+        },
+        {
+          "id": "q3",
+          "version": "v1",
+          "numerator": 1,
+          "denominator": 5
+        },
+        {
+          "id": "q4",
+          "version": "v1",
+          "numerator": 5,
+          "denominator": 5
+        }
+      ],
+      "after": [
+        {
+          "id": "q1",
+          "version": "v1",
+          "numerator": 3,
+          "denominator": 10
+        },
+        {
+          "id": "q2",
+          "version": "v1",
+          "numerator": 3,
+          "denominator": 10
+        },
+        {
+          "id": "q3",
+          "version": "v1",
+          "numerator": 3,
+          "denominator": 10
+        },
+        {
+          "id": "q4",
+          "version": "v2",
+          "numerator": 10,
+          "denominator": 10
+        }
+      ],
+      "expected": {
+        "common_count": 3,
+        "before": 0.2,
+        "after": 0.3,
+        "delta_pp": 10,
+        "grade": "exploratory",
+        "excluded": [
+          "q4"
+        ]
+      }
+    },
+    {
+      "id": "formal-coverage-fails",
+      "frozen_nonbrand_count": 30,
+      "common_count": 23,
+      "expected": {
+        "common_coverage": 0.7666666666666667,
+        "formal_allowed": false
+      }
+    },
+    {
+      "id": "lead-dedup",
+      "events": [
+        {
+          "event_key": "lead-01",
+          "source": "self_reported_ai"
+        },
+        {
+          "event_key": "lead-01",
+          "source": "verified_ai_referral"
+        },
+        {
+          "event_key": "lead-02",
+          "source": "dedicated_page_association"
+        }
+      ],
+      "expected": {
+        "unique_leads": 2,
+        "primary_source_counts": {
+          "verified_ai_referral": 1,
+          "dedicated_page_association": 1
+        }
+      }
+    },
+    {
+      "id": "d7-window",
+      "timezone": "Asia/Shanghai",
+      "effective_at": "2026-11-17T15:00:00+08:00",
+      "expected": {
+        "baseline_start": "2026-11-03T00:00:00+08:00",
+        "baseline_end_exclusive": "2026-11-17T00:00:00+08:00",
+        "observation_start": "2026-11-18T00:00:00+08:00",
+        "observation_end_exclusive": "2026-11-25T00:00:00+08:00"
+      }
+    },
+    {
+      "id": "tri-state-independent",
+      "answer": "乙提供该类产品，但不适合本题需求；推荐考虑甲。",
+      "native_citations": [
+        {
+          "url": "https://yi.example/product",
+          "ownership": "official"
+        }
+      ],
+      "expected": {
+        "brand_mentioned": true,
+        "brand_recommended": false,
+        "official_site_cited": true
+      }
+    },
+    {
+      "id": "empty-versus-missing-citations",
+      "observations": [
+        {
+          "id": "complete-empty",
+          "citation_completeness": "complete",
+          "citations": []
+        },
+        {
+          "id": "missing-field",
+          "citation_completeness": "unsupported",
+          "citations": null
+        }
+      ],
+      "expected": {
+        "c": 1,
+        "jc": 1,
+        "cited": 0,
+        "official_citation_rate": 0
+      }
+    }
+  ]
+}
